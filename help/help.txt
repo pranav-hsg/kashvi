@@ -1,0 +1,73 @@
+#################################################################################################################
+                                                                                                                                Guide
+#################################################################################################################
+
+
+This is a guide to use the app
+
+Requirement :
+
+	> Internet is must and should for this app to work.
+
+	> Proper atmosphere where there is less noise.
+
+The program contains four display sections :
+
+	a.This display shows whether or not the app has started (Shows if the app is dead or alive).
+
+	b.This display shows app state whether app is listening to the user or recognizing the user's voice
+
+	c.This display area shows the user command or input which was recognized by computer
+
+        d.This is the main display which shows output of the program
+
+> Press 'Start' button on the bottom of the screen to start the application.Now display gets updated and shows
+app has started on top of the screen.
+
+> Press 'Stop' to stop the app anywhere in the middle.
+(Note : It does not quits immediately because the thread is holding a critical resource that must be closed
+ properly) 
+
+> Press 'Restart' to Restart the app when app is running.
+(Note : If app is stopped already then there is no meaning in pressing restart instead press start button.Hence
+when app is already in stop state and you press 'Restart' button a warning is showed)
+
+> Please speak only when the app shows 'Listening.....' otherwise if the app is in 'recognizing' state then it is
+not going to take your command
+
+> When app is in listening state speak the appropriate command only commands mentioned here will work.And 
+questions must also be accurate.
+
+
+These are the commands used to complete certain tasks
+
+Commands :
+
+                 01) Time commands  =  'ಟೈಮ್', 'ಟೈಮ್ ಎಷ್ಟು', 'ಗಂಟೆ ಎಷ್ಟು', 'ಟೈಮೆಷ್ಟು', 'ಸಮಯ ಎಷ್ಟು', 
+ 'ಸಮಯವೆಷ್ಟು'
+
+                 02) News commands = 'ವಾರ್ತೆ ತಿಳಿಸು', 'ನ್ಯೂಸ್ ತಿಳಿಸು', 'ಮುಖ್ಯ ವಾರ್ತೆ ತಿಳಿಸು', 'ಸುದ್ದಿ ತಿಳಿಸು'
+
+                 03) Wikipedia commands = 'ವಿಕಿಪೇಡಿಯ', 'ವಿಕಿಪಿಡಿಯಾ', 'ವಿಕಿಪೀಡಿಯ'
+
+                 04) You-tube Commands  = 'ಯೂಟ್ಯೂಬ್ ಅನ್ನು ತೆರೆಯಿರಿ', 'ಯೂಟ್ಯೂಬ್ ತೆರೆ', 'ಯುಟ್ಯೂಬ ಓಪನ್',
+ 'ಓಪನ್ ಯುಟ್ಯೂಬ', 'ಓಪನ್ ಯುಟ್ಯೂಬ್', 'ಯುಟ್ಯೂಬ್ 
+
+                 05) Google commands = 'ಗೂಗಲ್ ಅನ್ನು ತೆರೆಯಿರಿ', 'ಗೂಗಲ್ ತೆರೆ', 'ಗೂಗಲ್ ಓಪನ್', 'ಓಪನ್ ಗೂಗಲ್'
+
+	05) Google-text commands = 'ಗೂಗಲ್', 'ಗೋಗಲ್', 'ಗಾಗಲ್'
+
+ 	06) Weather commands = 'ವೆದರ್', 'ಹವಾಮಾನ', 'ವಾತಾವರಣ'
+
+   	07) Whatsapp commands = 'ವಾಟ್ಸಪ್', 'ವಾಟ್ಸಾಪ್'
+
+    	08) Restart commands = 'ರೀಸ್ಟಾರ್ಟ್ ಕಂಪ್ಯೂಟರ್', 'ಗಣಕಯಂತ್ರವನ್ನು ಮರು ಪ್ರಾರಂಭಿಸು',
+ 'ಗಣಕಯಂತ್ರವನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ'
+
+    	09) Sleep commands = 'ಗಣಕಯಂತ್ರವನ್ನು ಮಲಗಿಸು', 'ಗಣಕಯಂತ್ರ ಮಲಗು', 'ಸ್ಲೀಪ್ ಕಂಪ್ಯೂಟರ್',
+ 'ಕಂಪ್ಯೂಟರ್ ಸ್ಲೀಪ್', 'ಮುಚ್ಕೋ ಮಲ್ಕ','ಮುಚ್ಕೊಂಡ್ ಮಲ್ಕೋ', 'ಮುಚ್ಕೊಂಡು ಮಲ್ಕ'
+
+    	10) Power-off commands = 'ಕಂಪ್ಯೂಟರ್ ಕೆಡಿಸು', 'ಕಂಪ್ಯೂಟರ್ ಆರಿಸು', 'ಗಣಕಯಂತ್ರವನ್ನು ಆರಿಸು', 
+'ಗಣಕಯಂತ್ರವನ್ನು ಕೆಡಿಸು','ಶಟ್ ಡೌನ್ ಕಂಪ್ಯೂಟರ್', 'ಕಂಪ್ಯೂಟರ್ ಶಬ್ದೊನ್', 'ಕಂಪ್ಯೂಟರನ್ನು ಆರಿಸು'
+
+    	

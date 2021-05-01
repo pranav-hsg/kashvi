@@ -19,7 +19,7 @@ The program contains four display sections :
 
 	c.This display area shows the user command or input which was recognized by computer
 
-        d.This is the main display which shows output of the program
+        	d.This is the main display which shows output of the program
 
 > Press 'Start' button on the bottom of the screen to start the application.Now display gets updated and shows
 app has started on top of the screen.
@@ -65,7 +65,7 @@ Commands :
  'ಗಣಕಯಂತ್ರವನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ'
 
     	09) Sleep commands = 'ಗಣಕಯಂತ್ರವನ್ನು ಮಲಗಿಸು', 'ಗಣಕಯಂತ್ರ ಮಲಗು', 'ಸ್ಲೀಪ್ ಕಂಪ್ಯೂಟರ್',
- 'ಕಂಪ್ಯೂಟರ್ ಸ್ಲೀಪ್', 'ಮುಚ್ಕೋ ಮಲ್ಕ','ಮುಚ್ಕೊಂಡ್ ಮಲ್ಕೋ', 'ಮುಚ್ಕೊಂಡು ಮಲ್ಕ'
+ 'ಕಂಪ್ಯೂಟರ್ ಸ್ಲೀಪ್'
 
     	10) Power-off commands = 'ಕಂಪ್ಯೂಟರ್ ಕೆಡಿಸು', 'ಕಂಪ್ಯೂಟರ್ ಆರಿಸು', 'ಗಣಕಯಂತ್ರವನ್ನು ಆರಿಸು', 
 'ಗಣಕಯಂತ್ರವನ್ನು ಕೆಡಿಸು','ಶಟ್ ಡೌನ್ ಕಂಪ್ಯೂಟರ್', 'ಕಂಪ್ಯೂಟರ್ ಶಬ್ದೊನ್', 'ಕಂಪ್ಯೂಟರನ್ನು ಆರಿಸು'

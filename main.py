@@ -27,6 +27,20 @@ try:
     import pywhatkit
 except Exception as e:
     print(e)
+# importing webdriver from selenium
+from selenium import webdriver
+
+def error_message(title, body, choice):
+    dest = 'kn'
+    error_dict = {
+        1: tk.messagebox.showinfo,
+        2: tk.messagebox.showwarning,
+        3: tk.messagebox.showerror
+    }
+    error_func = error_dict.get(choice, " ")
+    # text_translator(title, lang["display-text"]), text_translator(body, lang["display-text"])
+    error_func(title,body)
+
 
 icon = {
     "error": "images/err.ico",
@@ -43,7 +57,32 @@ lang = {
     'input-speech': 'kn',
     'output-speech': 'kn',
 }
+api_keys = {
+    'news_api': os.getenv('newsapi_api_key'),
+    'weather_api' : os.getenv('weather_api_key')
+}
+error_codes  = {
+    'internet-error': {
+        'etks':1000,
+        'newsteller':1001,
+        'weather-report':1003,
+    },
+    'unknown-error': {
+        'newsteller':1004,
+        'notification':1005,
+        'weather-report':1006,
+    },
+    'dir-error':{
+        'dir':1007,
+    },
+    'whatsapp':{
+        'msg-error':1008,
+    },
+    'power':{
+        'tweak-power':1009,
+    }
 
+}
 # Array of bad words
 bad_words = ['ಮುಕುಳಿ', 'ಕೆಯ', 'ನಾಯಿ ಕತ್ತೆ', 'ತುಲ್ಲೇ', 'ತುಲ್ಲಗ್', 'ತುಲ್ಲ', 'ತುನ್ನಿ', 'ಬೋಸುಡಿ', 'ಬೆವರ್ಸಿ', 'ಹಡ್ಬೆ',
              'ಸೂಳೇ',
@@ -83,14 +122,8 @@ def return_searched_word(arr, line):
 # mxsxmvkvdkvirtul
 
 # This function accepts a command from the user in speech form
-c = 1
-
-
 def takeuserinput(lang='kn', msg='Listening...'):
     # It takes microphone input from the user and returns string output
-    global c
-    print(c)
-    c += 1
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print(msg)
@@ -121,7 +154,10 @@ def takeuserinput(lang='kn', msg='Listening...'):
 
 # Open website function
 def open_website(website, new_tab=0):
-    webbrowser.open_new(website)
+    try:
+        webbrowser.open_new(website)
+    except Exception as e:
+        print("Error while opening website [open_website]"+e)
 
 
 # Playing music function
@@ -131,13 +167,18 @@ def say(music):
 
 # English to Kannada or vice versa text function
 def text_translator(text, dest='kn'):
-    from google_trans_new import google_translator
-    translator = google_translator()
-    translate_text = translator.translate(text, lang_tgt=dest)
-    # 'Hola mundo!', lang_src = 'en'
-    # print(translate_text)
-    # translator = Translator()
-    # translation = translator.translate(text, dest=dest)
+    try:
+        # from google_trans_new import google_translator
+        # translator = google_translator()
+        # translate_text = translator.translate(text, lang_tgt=dest)
+        # 'Hola mundo!', lang_src = 'en'
+        # print(translate_text)
+        translator = Translator()
+        translation= translator.translate(text, dest=dest)
+        translate_text = translation.text
+    except Exception as e:
+        print('Error while text translation [text_translator]',e)
+        translate_text = "Sorry error occurred"
     return translate_text
 
 
@@ -154,7 +195,8 @@ def etks(text, id=1):
         say(dir)
         os.remove(dir)
     except Exception as e:
-        print("No Internet for text translation and speech:", e)
+        error_message(f"Error e[{error_codes['internet-error']['etks']}]",'No Internet for text translation',3)
+        print("No Internet for text translation and speech in [etks] :", e)
     # print("No")
     # say("eng.mp3")
     # time.sleep(.5)
@@ -164,19 +206,20 @@ def etks(text, id=1):
 # News speaking function
 def newsteller(number=10, country='in', category='&category=business', q='&q=tesla'):
     x = []
-    api_key = os.getenv('newsapi_api_key')
+    api_key = api_keys['news_api']
     url = f'https://newsapi.org/v2/top-headlines?country={country}&language=en&apiKey={api_key}'
     try:
         x = requests.get(url, timeout=5)
         x = json.loads(x.text)
     except (requests.ConnectionError, requests.Timeout) as exception:
-        print("Internet problem occurred")
+        print("Internet problem occurred inside [newsteller]")
+        error_message(f"Error e[{error_codes['internet-error']['newsteller']}]", 'No Internet for fetching News', 3)
     counter = 0
     try:
         if len(x) != 0:
             for id, cray in enumerate(x['articles']):
                 counter += 1
-                if counter > number:
+                if counter > int(number):
                     break
                 regexp = '.*\s-\s'
                 pattern = re.compile(r'.*\s-\s')
@@ -185,7 +228,8 @@ def newsteller(number=10, country='in', category='&category=business', q='&q=tes
                 etks(result.group(), id)
             # print(result.group(), id)
     except Exception as e:
-        print("Error occurred inside newsteller :", e)
+        print("Error occurred inside [newsteller] :", e)
+        error_message(f"Error e[{error_codes['unknown-error']['newsteller']}]",e, 3)
 
 
 # Wish according to time function
@@ -222,13 +266,35 @@ def ggap(tim=0.5):
     time.sleep(tim)
 
 
+def create_dir(dir_array):
+    for dir in dir_array:
+        if not (path.exists(dir)):
+            try:
+                os.mkdir(dir)
+            except Exception as e:
+                print("Not able to make music directory inside [create_dir] :", e)
+                error_message(f"Error e[{error_codes['dir-error']['dir']}]", 'Not able to make directory', 3)
+
+def clear_dir(dir_array):
+    for dir in dir_array:
+        if path.exists(dir):
+            try:
+                filelist = [f for f in os.listdir(dir)]
+                for f in filelist:
+                    os.remove(os.path.join(dir, f))
+            except Exception as e:
+                print("Not able to make music directory inside [clear_dir] :", e)
+                error_message(f"Error e[{error_codes['dir-error']['dir']}]", 'Not able to make directory', 3)
+
+
 # Initialization function
 def init():
     if not (path.exists("music")):
         try:
             os.mkdir("music")
         except Exception as e:
-            print("Not able to make music directory: ", e)
+            print("Not able to make music directory inside [init] :", e)
+            error_message(f"Error e[{error_codes['dir-error']['dir']}]", 'Not able to make directory', 3)
     wish_time()
     ggap()
     etks("I am kashvi,please tell me how may i help", 1)
@@ -246,7 +312,9 @@ def swm(msg, num):
             mn = mn + 1
         pywhatkit.sendwhatmsg('+91' + num, msg, hr, mn)
     except:
-        print("Message can't be sent")
+        print("Message can't be sent in [swm]",e)
+        error_message(f"Error e[{error_codes['whatsapp']['msg-error']}]", 'An error while sending message', 3)
+
 
 
 def notify_system(title, message, app_icon, timeout=4):
@@ -259,7 +327,8 @@ def notify_system(title, message, app_icon, timeout=4):
             toast=False
         )
     except Exception as e:
-        print(e)
+        print("Error occurred inside [notify_system]")
+        error_message(f"Error e[{error_codes['unknown-error']['notification']}]",e,3)
 
 
 def utc_to_time(secsTillEpoch):
@@ -271,7 +340,7 @@ def utc_to_time(secsTillEpoch):
 
 
 def weather_report(latitude=13.66675, longitude=75.30914):
-    api_key = os.getenv('weather_api_key')
+    api_key = api_keys['weather_api']
     url = f"http://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid" \
           f"={api_key}&lang=en "
     json_object = {}
@@ -282,7 +351,8 @@ def weather_report(latitude=13.66675, longitude=75.30914):
         w = json_object
         # print(type(json_object))
     except Exception as e:
-        print("Internet problem ocurred", e)
+        print("Internet problem ocurred in [weather_report]", e)
+        error_message(f"Error e[{error_codes['internet-error']['weather_report']}]", 'Internet problem occured while weather fetching', 3)
     json_formatted_str = json.dumps(json_object, indent=2)
     # Check if dictionary is empty
     if len(w) != 0:
@@ -311,7 +381,8 @@ def weather_report(latitude=13.66675, longitude=75.30914):
             # Speak all info through etks function
             etks(windInfo + weatherInfo + temperatureInfo + pressureInfo + humidityInfo + sunRiseInfo + sunSetInfo)
         except Exception as e:
-            print("Error occurred []:", e)
+            print("Error occurred [inside weather_report]:", e)
+            error_message(f"Error e[{error_codes['unknown-error']['weather-report']}]", e, 3)
     else:
         notify_system("Error",
                       'Sorry !!!: Cannot access weather information.There was a problem connecting with server check your internet and then retry.',
@@ -328,7 +399,9 @@ def wikipedia_search(query, sentences=2):
         etks("According to wikipedia")
         etks(result)
     except Exception as e:
+        print('Error occurred',e)
         # "ಕ್ಷಮಿಸಿ ಯಾವುದೇ ಮಾಹಿತಿ ಇಲ್ಲ"
+
         etks("Sorry there is no information")
 
 
@@ -347,8 +420,10 @@ commands = {
     'power-off': ['ಕಂಪ್ಯೂಟರ್ ಕೆಡಿಸು', 'ಕಂಪ್ಯೂಟರ್ ಆರಿಸು', 'ಗಣಕಯಂತ್ರವನ್ನು ಆರಿಸು', 'ಗಣಕಯಂತ್ರವನ್ನು ಕೆಡಿಸು',
                   'ಶಟ್ ಡೌನ್ ಕಂಪ್ಯೂಟರ್', 'ಕಂಪ್ಯೂಟರ್ ಶಬ್ದೊನ್', 'ಕಂಪ್ಯೂಟರನ್ನು ಆರಿಸು'],
     'google-text': ['ಗೂಗಲ್', 'ಗೋಗಲ್', 'ಗಾಗಲ್'],
+    'map': ['ಮ್ಯಾಪ್','ಮ್ಯಾಪ್ಸ್','ನಕ್ಷೆ'],
     'positive-statements': ['ಹೌದು', 'ಹಾ', 'ಎಸ್', 'ಓಕೆ'],
     'negative-statements': ['ನೋ', 'ಇಲ್ಲ', 'ಅಲ್ಲ'],
+    'meaning':['ಶಬ್ದದ ಅರ್ಥ','ಶಬ್ದ ಅರ್ಥ','ಶಬ್ದಾರ್ಥ','ಮೀನಿಂಗ್'],
 }
 
 
@@ -364,23 +439,63 @@ def tweak_power(command, action):
         # If error occurs then
     except Exception as e:
         etks(f"Some error has occurred")
+        error_message(f"Error e[{error_codes['power']['tweak-power']}]", 'Some error occured while tweaking power', 3)
         print(e)
 
 
 def google_search(user_input="who is Prime Minister of India"):
-    user_input = text_translator(user_input, dest='en')
-    result = requests.get(f"https://www.google.com/search?q={user_input}")
-    html_text = result.text
-    html_parsed = BeautifulSoup(html_text, 'html.parser')
-    match = html_parsed.find('div', class_='BNeawe')
-    # print(match.text.split(".", 1))
-    etks(match.text)
+    #Meaning of the word
+    if testifarrayinline(commands['meaning'], user_input):
+        print("If passed")
+        query = user_input.replace(return_searched_word(commands['meaning'], user_input), '')
+        english_query = text_translator(query,'en')
+        print(english_query)
+        apended_eng_query = 'meaning of the word '+ english_query
+        print(apended_eng_query,type(apended_eng_query ))
+        result = requests.get(f"https://www.google.com/search?q={apended_eng_query}")
+        html_text = result.text
+        html_parsed = BeautifulSoup(html_text, 'html.parser')
+        # print(html_parsed.prettify())
+        # print(html_parsed)
+        match = html_parsed.find_all("div", {"class": "BNeawe s3v9rd AP7Wnd"})[2]
 
+        # match = html_parsed.find_all('div', {"data-dobid" : "dfn"})
+        # print(match.prettify())
+        # print(match.text)
+        print(match.text)
+        etks(match.text)
+    else:
+        user_input = text_translator(user_input, dest='en')
+        result = requests.get(f"https://www.google.com/search?q={user_input}")
+        html_text = result.text
+        html_parsed = BeautifulSoup(html_text, 'html.parser')
+        match = html_parsed.find('div', class_='BNeawe')
+        # print(match.text.split(".", 1))
+        etks(match.text)
+
+
+# Opens google maps using selenium tool
+def open_google_maps(url):
+    # Here Chrome  will be used
+    global driver
+    driver = webdriver.Chrome('C:\Program Files (x86)\chromedriver.exe')
+    # Opening the website
+    driver.get(url)
+    # Giving gap of 5 seconds
+    ggap(5)
+    # Geting the button by class
+    button = driver.find_element_by_class_name("searchbox-searchbutton")
+    # clicking on the search button on website
+    button.click()
+    # Giving gap of 2 seconds
+    time.sleep(2)
+    # click again search button
+    button.click()
 
 def main():
-    # gui.clear_display(gui.main_screen_text)
-    print("Invoked main")
+    # Taking user input in kannada language
     user_input = takeuserinput()
+    # Take user input until he/she speaks something
     while user_input is None:
         user_input = takeuserinput()
     # Only enter function if user input is not none
@@ -400,12 +515,15 @@ def main():
             wikipedia_search(wikiQuery)
         # If user asks to open you tube browser
         elif testifarrayinline(commands['you-tube'], user_input):
-            open_website("https://www.youtube.com")
+            map_query = user_input.replace(return_searched_word(commands['you-tube'], user_input), '')
+            open_website("https://www.youtube.com/f{}")
         # If user asks to open google in browser
         elif testifarrayinline(commands['google'], user_input):
             open_website("https://www.google.com")
+        # If user asks for weather data
         elif testifarrayinline(commands['weather'], user_input):
             weather_report()
+        # If user asks for message using whatsapp
         elif testifarrayinline(commands['whatsapp'], user_input):
             try:
                 message = takeuserinput('kn', 'Listening to message')
@@ -414,7 +532,8 @@ def main():
                               '"' + message + ' "ಎಂಬ ಸಂದೇಶವನ್ನು ' + number + 'ಗೆ ಕಳುಹಿಸಲಾಗುವುದು', icon['message'], 10)
                 swm(message, number)
             except Exception as e:
-                print(e)
+                print("Inside main in whatsapp",e)
+
         elif testifarrayinline(commands['power-off'], user_input):
             # Power off fucntion
             tweak_power("shutdown /s /t 1", 'power-off')
@@ -428,6 +547,11 @@ def main():
             # Google function
             google_query = user_input.replace(return_searched_word(commands['google-text'], user_input), '')
             google_search(google_query)
+        elif testifarrayinline(commands['map'], user_input):
+            # Google map function
+            map_query = user_input.replace(return_searched_word(commands['map'], user_input), '')
+            # map_query = text_translator(map_query,'en')
+            open_google_maps(f"https://www.google.com/maps/place/{map_query}")
         else:
             etks("Sorry I am not able to hear because of combined voice")
     main()
@@ -470,6 +594,7 @@ class thread_with_exception(threading.Thread):
 
 
 def on_start():
+    create_dir(['music','images','help','data'])
     display("Started", 1)
     clear_display(heading_text1, heading_text2, main_screen_text)
     global t1, is_alive
@@ -489,6 +614,7 @@ def on_start():
 
 
 def on_stop():
+    clear_dir(['music'])
     clear_display(heading_text1, heading_text2, main_screen_text)
     display("App has Stopped,Press start", 1)
     display("Stopped", 2)
@@ -534,17 +660,6 @@ def display(value, choice):
     }
     disp_text = text_switcher.get(choice, " ")
     disp_func.set(disp_text + value)
-
-
-def error_message(title, body, choice):
-    dest = 'kn'
-    error_dict = {
-        1: tk.messagebox.showinfo,
-        2: tk.messagebox.showwarning,
-        3: tk.messagebox.showerror
-    }
-    error_func = error_dict.get(choice, " ")
-    error_func(text_translator(title, lang["display-text"]), text_translator(body, lang["display-text"]))
 
 
 def timeout(sec, func):

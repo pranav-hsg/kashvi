@@ -1,0 +1,66 @@
+{
+ "black_theme": {
+  "app-bg": "#404040",
+  "app-disp-bg": "#d1e7dd",
+  "n1-txt": "white",
+  "h1-txt": "#0b3b24",
+  "h2-txt": "#0b3b24",
+  "main-txt": "#0f5132",
+  "btn": {
+   "start-bg": "#0275d8",
+   "start-fg": "white",
+   "stop-bg": "#ff0000",
+   "stop-fg": "white",
+   "rstart-bg": "green",
+   "rstart-fg": "white"
+  }
+ },
+ "white_theme": {
+  "app-bg": "white",
+  "app-disp-bg": "#ffe7c9",
+  "n1-txt": "#404040",
+  "h1-txt": "#cc7100",
+  "h2-txt": "#cc7100",
+  "main-txt": "#e07c00",
+  "btn": {
+   "start-bg": "#0275d8",
+   "start-fg": "white",
+   "stop-bg": "#ff0000",
+   "stop-fg": "white",
+   "rstart-bg": "green",
+   "rstart-fg": "white"
+  }
+ },
+ "orange_theme": {
+  "app-bg": "#ff7700",
+  "app-disp-bg": "#ffd2ab",
+  "n1-txt": "white",
+  "h1-txt": "#de5c00",
+  "h2-txt": "#de5c00",
+  "main-txt": "#ff6a00",
+  "btn": {
+   "start-bg": "#0275d8",
+   "start-fg": "white",
+   "stop-bg": "#ff0000",
+   "stop-fg": "white",
+   "rstart-bg": "green",
+   "rstart-fg": "white"
+  }
+ },
+ "blue_theme": {
+  "app-bg": "#00ffee",
+  "app-disp-bg": "#00a196",
+  "n1-txt": "#404040",
+  "h1-txt": "#960000",
+  "h2-txt": "#960000",
+  "main-txt": "#b50000",
+  "btn": {
+   "start-bg": "#0275d8",
+   "start-fg": "white",
+   "stop-bg": "#ff0000",
+   "stop-fg": "white",
+   "rstart-bg": "green",
+   "rstart-fg": "white"
+  }
+ }
+}

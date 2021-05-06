@@ -1,13 +1,20 @@
+import asyncio
+
 import speech_recognition as sr
+import data as dt
 from gtts import gTTS
 import pyautogui
 import datetime
 import requests
 import json
+from apiclient.discovery import build
+try:
+    import pywhatkit
+except Exception as e:
+    print(e)
 from pathlib import Path
 import re
 import smtplib
-from apiclient.discovery import build
 import webbrowser
 from playsound import playsound
 import os
@@ -25,14 +32,18 @@ try:
     from plyer import notification
 except Exception as e:
     print(e)
-try:
-    import pywhatkit
-except Exception as e:
-    print(e)
+
 # importing webdriver from selenium
 from selenium import webdriver
 
 def error_message(title, body, choice):
+    """
+        The function to open info/warning/error window
+        Parameters:
+            title (str): The title of the error message.
+            body (str): Description of error message.
+            choice (int): Type of message ,1 ->info,2 -> warning,3 -> error
+    """
     dest = 'kn'
     # using switch like statement
     error_dict = {
@@ -58,6 +69,7 @@ sender_email_info = {
     'user_name': '',
     'user_password': os.getenv('device_mail_id')
 }
+# os.getenv('device_mail_id')
 # Language settings default en,kn,kn
 lang = {
     'display-text': 'en',
@@ -73,48 +85,33 @@ lang = {
 # https://console.cloud.google.com/apis/dashboard
 # learn about api here https://developers.google.com/youtube/v3
 
+# api_keys = {
+#     'news_api':1,
+#     'weather_api' : 2,
+#     'youtube_api':3
+# }
 api_keys = {
     'news_api': os.getenv('newsapi_api_key'),
     'weather_api' : os.getenv('weather_api_key'),
     'youtube_api': os.getenv('youtube_api_key')
 }
-# Error code settings
-error_codes  = {
-    'internet-error': {
-        'etks':1000,
-        'newsteller':1001,
-        'weather-report':1003,
-        'browser-open':1004,
-        'google-search':1005,
-        'youtube-link':1006,
-        'mail':1007
-    },
-    'unknown-error': {
-        'newsteller':1008,
-        'notification':1009,
-        'weather-report':1010,
-        'google-maps':1011,
-    },
-    'dir-error':{
-        'dir':1012,
-    },
-    'whatsapp':{
-        'msg-error':1013,
-    },
-    'power':{
-        'tweak-power':1014,
-    }
 
-}
-# Array of bad words
-bad_words = ['ಮುಕುಳಿ', 'ಕೆಯ', 'ನಾಯಿ ಕತ್ತೆ', 'ತುಲ್ಲೇ', 'ತುಲ್ಲಗ್', 'ತುಲ್ಲ', 'ತುನ್ನಿ', 'ಬೋಸುಡಿ', 'ಬೆವರ್ಸಿ', 'ಹಡ್ಬೆ',
-             'ಸೂಳೇ',
-             'ಸಾಟ', 'ಶಾಟ', 'ಹಲ್ಕಟ್', 'ಅಲ್ಕಟ್', 'ಹಲ್ಕಾಟ್', 'ಮಿಂಡ್ರೀ', 'ಮಿಂಡಾ', 'ಬಡ್ಡಿ', 'ಮುಂಡೆ', 'ಫಕ್', 'ಲೋಫರ್',
-             'ನಿಮ್ಮಜ್ಜಿ', 'ಕತ್ತೆ', 'ಮಂಗ', 'ಸುವರ್', 'ಗಂಜರ್', 'ಬಿಚ್', 'ಪೀಸ್', 'ಬ್ಲಡಿ', 'ಹೆಲ್', 'ನಾಯಿ', 'ವಡ್ಡ']
-
+# Retrieving main data required for program from files inside data folder.
+b_w = dt.retrieve_json(['bw.json'])[0][0]
+theme = dt.retrieve_json(['theme.json'])[0][0]
+commands = dt.retrieve_json(['commands.json'])[0][0]
+error_codes = dt.retrieve_json(['errorcodes.json'])[0][0]
 
 # Tests if any of the array of words is present in given line
 def testifarrayinline(arr, line):
+    """
+        The function to return if keyword in array(arr) is contained in input String(line).
+        Parameters:
+            arr (list): The list which contains commands.
+            line (str): User given input string line.
+        Returns:
+            bool: Returns True or False.
+    """
     # It takes array of string and string line,
     # for every string in array put the string to elem
     for elem in arr:
@@ -125,16 +122,28 @@ def testifarrayinline(arr, line):
 
 
 def return_searched_word(arr, line):
+    """
+        The function to return if keyword in array(arr) is contained in input String(line).
+        Parameters:
+            arr (list): The list which contains commands.
+            line (str): User given input string line.
+        Returns:
+            str: Returns None or searched keyword element in command array.
+    """
     # It takes array of string and string line,
     # for every string in array put the string to elem
     for elem in arr:
         # if elem is in line:
         if re.search(elem, line):
             return elem
-    return False
+    return None
 
 
+a =return_searched_word([],1)
 def send_mail():
+    """
+        The function to send email which accepts no input.
+    """
     try:
         from_mail=sender_email_info['user_name']
         frommail_password=sender_email_info['user_password']
@@ -167,41 +176,56 @@ def send_mail():
 
 # This function accepts a command from the user in speech form
 def takeuserinput(lang='kn', msg='Listening...'):
+    """
+        The function which accepts input in the form of audio from the user.
+        Parameters:
+            lang (str): Name of the input language to accept,ex : 'en' for English.
+            msg (str): To display to user while accepting command like 'Listening...'.
+        Returns:
+            str: Returns input in the form of string which is accepted from user.
+    """
     # It takes microphone input from the user and returns string output
-    r = sr.Recognizer()
     with sr.Microphone() as source:
+        r = sr.Recognizer()
         print(msg)
         display(msg, 2)
         # hear=True
         r.pause_threshold = 0.6
         audio = r.listen(source)
 
-    try:
-        # hear = False
-        display("Recognizing......", 2)
-        print("Recognizing...")
-        query = r.recognize_google(audio, language=f'{lang}-in')
-        clear_display(heading_text1)
-        display("Processing...", 2)
-        display(query, 3)
-        # print(f"User said: {query}\n")
+        try:
+            # query = ret_rand_cmd()
+            display("Recognizing......", 2)
+            print("Recognizing...")
+            query = r.recognize_google(audio, language=f'{lang}-IN')
+            clear_display(heading_text1)
+            display("Processing...", 2)
+            display(query, 3)
+            print(f"User said: {query}\n")
 
-    except Exception as e:
-        print(e)
-        clear_display(heading_text2)
-        print("Please only speak when I am listening", e)
-        display("Please only speak when I am listening", 2)
-        ggap(4)
-        # etks("Please say that again when i am listening")
-        return None
+        except Exception as e:
+            print(e)
+            clear_display(heading_text2)
+            print("Please only speak when I am listening", e)
+            display("Please only speak when I am listening", 2)
+            error_message(f"Error e[{error_codes['internet-error']['browser-open']}]", e, 3)
+            ggap(4)
+            # etks("Please say that again when i am listening")
+            return None
     return query
 
 
 # Open website function
-def open_website(website, new_tab=0):
+def open_website(url, new_tab=0):
+    """
+        The function which opens a url in default browser.
+        Parameters:
+            url (str): Url of the website to open.
+            new_tab (int): If one wants to open in new tab or not.
+    """
     try:
         # Try to open website url
-        webbrowser.open_new(website)
+        webbrowser.open_new(url)
     except Exception as e:
         error_message(f"Error e[{error_codes['internet-error']['browser-open']}]", 'An error occurred while opening browser', 3)
         print("Error while opening website [open_website]"+e)
@@ -209,6 +233,11 @@ def open_website(website, new_tab=0):
 
 # Playing music function
 def say(music):
+    """
+        The function which plays music synchronously.
+        Parameters:
+            music (str): path to music file and its name at end of path.
+    """
     # Use playsound and not play using os module because playsound plays syncronously while
     # play using os module plays asyc leading to misbehaving of current app
     playsound(music);
@@ -216,6 +245,14 @@ def say(music):
 
 # English to Kannada or vice versa text function
 def text_translator(text, dest='kn'):
+    """
+        The function translates text.
+        Parameters:
+            text (str): Text to be converted.
+            dest (str): Destination language to be converted.
+        Returns:
+            str : Translated text in the form of string.
+    """
     try:
         # keep this for emergency incase if other code does not works
         # from google_trans_new import google_translator
@@ -234,6 +271,12 @@ def text_translator(text, dest='kn'):
 
 # English text to kannada speech function
 def etks(text, id=1):
+    """
+        The function converts english language text to kannada language speech.
+        Parameters:
+            text (str): Text to be converted to speech.
+            id (int): To set music id (Not important).
+    """
     dir = f"music//eng{id}.mp3"
     try:
         kan_txt = text_translator(text, 'kn')
@@ -251,6 +294,12 @@ def etks(text, id=1):
 
 # News speaking function
 def newsteller(number=10, country='in', category='&category=business', q='&q=tesla'):
+    """
+        The function which speaks news.
+        Parameters:
+            number (int): Number of news to tell.
+            country (str): Country of which to tell news.
+    """
     x = []
     api_key = api_keys['news_api']
     url = f'https://newsapi.org/v2/top-headlines?country={country}&language=en&apiKey={api_key}'
@@ -286,6 +335,11 @@ def newsteller(number=10, country='in', category='&category=business', q='&q=tes
 
 # Wish according to time function
 def wish_time(time=datetime.datetime.now().strftime("%H")):
+    """
+        The function to wish time,like 'good morning'.
+        Parameters:
+            time (Any): Optional time input to speak.
+    """
     # convert string time to int type
     time = int(time)
     # these are self explanatory
@@ -301,7 +355,7 @@ def wish_time(time=datetime.datetime.now().strftime("%H")):
 
 # Bad word checker function
 def bwc(cmd):
-    for bw in bad_words:
+    for bw in b_w:
         # if bw in cmd:
         if bw in cmd:
             # ಇದುನ್ನಾ ನಿನ್ನ ಅಪ್ಪಂಗೆ ಹೇಳು
@@ -312,16 +366,29 @@ def bwc(cmd):
 
 # Current time enquiry function
 def curtime():
+    """
+        The function speaks current time (hour and minutes)
+    """
     etks(datetime.datetime.now().strftime("%H : %M "))
 
 
 # Give gap function
 def ggap(tim=0.5):
+    """
+        The function which is shorthand for time.sleep function (Blocks code for user specified time).
+        Parameters:
+            tim (float): Optional time in seconds to stop.
+    """
     time.sleep(tim)
 
 
 # fuction to create a directory,this function creates all dirs in dir_array
 def create_dir(dir_array):
+    """
+        The function which creates directories in given array.
+        Parameters:
+            dir_array (list): An array of directory names to create.
+    """
     # pick particular directory from directory array
     for dir in dir_array:
         # If directory path does not exists then only proceed,because there is no point in creating same dir
@@ -336,6 +403,11 @@ def create_dir(dir_array):
 
 # funtion to clear all files inside a directory,this function clears entire dir inside dir_array
 def clear_dir(dir_array):
+    """
+        The function which clears all files and directories inside a given directory array.
+        Parameters:
+            dir_array (list): An array of directory names to clear.
+    """
     # pick particular directory from directory array
     for dir in dir_array:
         # If directory path exists then only proceed
@@ -361,13 +433,17 @@ def init():
 
 # Send whats app message function
 def swm():
+    """
+        The function sends whatsapp message.
+    """
     try:
         etks("Speak the message you want to send when I start to listen")
         # Calculate current time hour,min,sec
         ggap()
         msg = takeuserinput('kn', 'Listening to message')
+        etks("Enter the number to which you want to send a whatsapp message")
         # Take number to which user wants to send message
-        display('Enter the target email to which you want to send email and then press submit', 4)
+        display('Enter the target number to which you want to send whatsapp message and then press submit', 4)
         global inputValue
         block.set(True)
         root.wait_variable(block)
@@ -390,6 +466,14 @@ def swm():
 
 # Notification function to show notification to system
 def notify_system(title, message, app_icon, timeout=4):
+    """
+        The function which pops system notification.
+        Parameters:
+            title (str): Title to display in notification.
+            message (str): Message to display notification.
+            app_icon (str): Path of icon to display in notification.
+            timeout (int): Number of seconds until notification vanishes.
+    """
     try:
         notification.notify(
             title=title,
@@ -404,15 +488,30 @@ def notify_system(title, message, app_icon, timeout=4):
 
 
 def utc_to_time(secsTillEpoch):
+    """
+        The function converts seconds till Epoch to hours and minutes and date,ex 1618965725 -> Wed Apr 21 06:12:05 2021.
+        Epoch (or Unix time or POSIX time or Unix timestamp) is the number of seconds that have elapsed since January 1,
+        1970 (midnight UTC/GMT), not counting leap seconds.
+        Parameters:
+            secsTillEpoch (int): Seconds till Epoch.
+        Returns:
+            datetime: Returns parsed date and time in the format of '%a %b %d %H:%M:%S %Y'.
+    """
     # ctime converts epoch to string ex:1618965725 -> Wed Apr 21 06:12:05 2021
     local_time = time.ctime(secsTillEpoch)
     # strptime function parses from string
-    cur_time = datetime.datetime.strptime(local_time, '%a %b %y %H:%M:%S %Y')
+    cur_time = datetime.datetime.strptime(local_time, '%a %b %d %H:%M:%S %Y')
     return cur_time
 
 
 # Enter latitude and longitude to get weather information
 def weather_report(latitude=13.66675, longitude=75.30914):
+    """
+        The function speaks weather report with help of etks function.
+        Parameters:
+            latitude (int): Latitude of the area of which you want to fetch weather.
+            longitude (int): Longitude of the area of which you want to fetch weather.
+    """
     api_key = api_keys['weather_api']
     url = f"http://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid" \
           f"={api_key}&lang=en "
@@ -463,6 +562,12 @@ def weather_report(latitude=13.66675, longitude=75.30914):
 
 
 def wikipedia_search(query, sentences=2):
+    """
+        The function speaks data from wikipedia with the help of etks.
+        Parameters:
+            query (str): Search string to query.
+            sentences (int): Number of sentences to fetch.
+    """
     try:
         query = text_translator(query, dest='en')
         # etks(f"Searching wikipedia about {query}")
@@ -477,35 +582,21 @@ def wikipedia_search(query, sentences=2):
         etks("Sorry there is no information")
 
 
-commands = {
-    'time': ['ಟೈಮ್', 'ಟೈಮ್ ಎಷ್ಟು', 'ಗಂಟೆ ಎಷ್ಟು', 'ಟೈಮೆಷ್ಟು', 'ಸಮಯ ಎಷ್ಟು', 'ಸಮಯವೆಷ್ಟು'],
-    'news': ['ವಾರ್ತೆ ತಿಳಿಸು', 'ನ್ಯೂಸ್ ತಿಳಿಸು', 'ಮುಖ್ಯ ವಾರ್ತೆ ತಿಳಿಸು', 'ಸುದ್ದಿ ತಿಳಿಸು'],
-    'wikipedia': ['ವಿಕಿಪೇಡಿಯ', 'ವಿಕಿಪಿಡಿಯಾ', 'ವಿಕಿಪೀಡಿಯ'],
-    'you-tube': ['ಯೂಟ್ಯೂಬ್ ಅನ್ನು ತೆರೆಯಿರಿ', 'ಯೂಟ್ಯೂಬ್ ತೆರೆ', 'ಯುಟ್ಯೂಬ ಓಪನ್', 'ಓಪನ್ ಯುಟ್ಯೂಬ', 'ಓಪನ್ ಯುಟ್ಯೂಬ್',
-                 'ಯುಟ್ಯೂಬ್ ','ಯೂಟ್ಯೂಬ್'],
-    'google': ['ಗೂಗಲ್ ಅನ್ನು ತೆರೆಯಿರಿ', 'ಗೂಗಲ್ ತೆರೆ', 'ಗೂಗಲ್ ಓಪನ್', 'ಓಪನ್ ಗೂಗಲ್'],
-    'weather': ['ವೆದರ್', 'ಹವಾಮಾನ', 'ವಾತಾವರಣ'],
-    'whatsapp': ['ವಾಟ್ಸಪ್', 'ವಾಟ್ಸಾಪ್'],
-    'restart': ['ರೀಸ್ಟಾರ್ಟ್ ಕಂಪ್ಯೂಟರ್','ಕಂಪ್ಯೂಟರ್ ರೀಸ್ಟಾರ್ಟ್', 'ಗಣಕಯಂತ್ರವನ್ನು ಮರು ಪ್ರಾರಂಭಿಸು',
-                'ಗಣಕಯಂತ್ರವನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ'],
-    'sleep': ['ಗಣಕಯಂತ್ರವನ್ನು ಮಲಗಿಸು', 'ಗಣಕಯಂತ್ರ ಮಲಗು','ಕಂಪ್ಯೂಟರ್ ಮಲಗು','ಕಂಪ್ಯೂಟರ್ ಮಲಗಿಸು',
-                'ಸ್ಲೀಪ್ ಕಂಪ್ಯೂಟರ್', 'ಕಂಪ್ಯೂಟರ್ ಸ್ಲೀಪ್', 'ಮುಚ್ಕೋ ಮಲ್ಕ','ಮುಚ್ಕೊಂಡ್ ಮಲ್ಕೋ', 'ಮುಚ್ಕೊಂಡು ಮಲ್ಕ'],
-    'power-off': ['ಕಂಪ್ಯೂಟರ್ ಕೆಡಿಸು', 'ಕಂಪ್ಯೂಟರ್ ಆರಿಸು', 'ಗಣಕಯಂತ್ರವನ್ನು ಆರಿಸು', 'ಗಣಕಯಂತ್ರವನ್ನು ಕೆಡಿಸು',
-                  'ಶಟ್ ಡೌನ್ ಕಂಪ್ಯೂಟರ್', 'ಕಂಪ್ಯೂಟರ್ ಶಬ್ದೊನ್', 'ಕಂಪ್ಯೂಟರನ್ನು ಆರಿಸು'],
-    'google-text': ['ಗೂಗಲ್', 'ಗೋಗಲ್', 'ಗಾಗಲ್'],
-    'map': ['ಮ್ಯಾಪ್','ಮ್ಯಾಪ್ಸ್','ನಕ್ಷೆ'],
-    'twitter':['ಟ್ವಿಟರ್ ತೆರೆ','ಟ್ವಿಟರ್ ಓಪನ್','ಓಪನ್ ಟ್ವಿಟರ್'],
-    'facebook':['ಓಪನ್ ಫೇಸ್ಬುಕ್','ಫೇಸ್ಬುಕ್ ಓಪನ್','ಫೇಸ್ಬುಕ್ ತೆರೆ','ತೆರೆ ಫೇಸ್ಬುಕ್'],
-    'instagram':['ಇನ್ಸ್ಟಾಗ್ರಾಮ್ ಓಪನ್','ಓಪನ್ ಇನ್ಸ್ಟಾಗ್ರಾಮ್','ತೆರೆ ಇನ್ಸ್ಟಾಗ್ರಾಮ್','ಇನ್ಸ್ಟಾಗ್ರಾಮ್ ತೆರೆ','ಓಪನ್ ಇನ್ಸ್ಟಾ'
-        ,'ಇನ್ಸ್ಟಾ ಓಪನ್'],
-    'e-mail':['ಇ-ಮೇಲ್ ಕಳಿಸು','ಇ-ಮೇಲ್','ಇಮೇಲ್ ಕಳುಹಿಸು'],
-    'positive-statements': ['ಹೌದು', 'ಹಾ', 'ಎಸ್', 'ಓಕೆ'],
-    'negative-statements': ['ನೋ', 'ಇಲ್ಲ', 'ಅಲ್ಲ'],
-    'meaning':['ಶಬ್ದದ ಅರ್ಥ','ಶಬ್ದ ಅರ್ಥ','ಶಬ್ದಾರ್ಥ','ಮೀನಿಂಗ್'],
-}
+def ret_rand_cmd():
+    import random
+    random_element = random.choice(list(commands.values()))
+    cmd = random.choice(random_element)
+    print(cmd)
+    return cmd
 
 
 def tweak_power(command, action):
+    """
+        The function executes given command( such as tweaking power).
+        Parameters:
+            command (str): Command to take action.
+            action (str): Action to make such as sleep/restart/power-off.
+    """
     try:
         etks(f"Are you sure want to {action} computer")
         # Ask for user confirmation
@@ -522,6 +613,11 @@ def tweak_power(command, action):
 
 
 def google_search(user_input="who is Prime Minister of India"):
+    """
+        The function speaks data from google with the help of etks.
+        Parameters:
+            user_input (str): Query to search in google.
+    """
     # if user wanted to search Meaning of the word
     try:
         if testifarrayinline(commands['meaning'], user_input):
@@ -563,6 +659,11 @@ def google_search(user_input="who is Prime Minister of India"):
 
 # Get youtube link ,note that you want api key for youtube.
 def get_youtube_link(query):
+    """
+        The function opens particular video in browser according to user query with the help of youtube api.
+        Parameters:
+            query (str): Search string to query.
+    """
     try:
         youtube = build('youtube', 'v3', developerKey=api_keys['youtube_api'])
         # search you tube for top results
@@ -579,6 +680,11 @@ def get_youtube_link(query):
 
 # Opens google maps using selenium tool
 def open_google_maps(url):
+    """
+        The function opens google map according to user query.
+        Parameters:
+            url (str): url to fetch.
+    """
     try:
         # set driver as global(It is necessary because if not set then browser closes itself after sometime)
         global driver
@@ -603,6 +709,13 @@ def open_google_maps(url):
 
 
 def recursive_input(lang='kn'):
+    """
+        The function takes recursive input till user speaks.
+        Parameters:
+            lang (str): Name of the input language .
+        Returns:
+            str : returns query input.
+    """
     # Taking user input in kannada language
     # User user_input is in the format of  kannada string
     user_input = takeuserinput()
@@ -616,9 +729,12 @@ def recursive_input(lang='kn'):
 count = 0
 # Main function
 def main():
+    """
+        This is the main function.
+    """
     global count
     if count == 0:
-        init()
+        # init()
         count+=1
     # Recursive input takes user from input until user speaks
     user_input = recursive_input('kn')
@@ -701,6 +817,9 @@ def main():
 
 # Thread class
 class thread_with_exception(threading.Thread):
+    """
+       This is a class to stop thread.
+   """
     def __init__(self, func, name="Thread"):
         self.func = func
         threading.Thread.__init__(self)
@@ -733,27 +852,19 @@ class thread_with_exception(threading.Thread):
 
 # When onstop method is pressed
 def on_start():
-    # Create all directories required for entire app to avoid error
-    create_dir(['music','images','help','data'])
-    display("Started", 1)
-    clear_display(heading_text1, heading_text2, main_screen_text)
+    """
+        The function starts thread when start button is clicked.
+    """
     # Grab global variables instead of function variables
     # If global is not specified function variables are called
     global t1, is_alive
-    # t1 variable is none then
-    if t1 is None:
-        # Creating thread and assigning it to t1 global variable
-        t1 = thread_with_exception(main, main)
-        # Make it daemon thread so that it stops when tkinter gui exits
-        # If daemon is not specified it does not quits even after exiting GUI
-        t1.daemon = True
-        # Thread is created but not started , lets do this
-        t1.start()
-        # Set variable so that to indicate thread is alive
-        is_alive = True
-    elif t1 is not None:
-        # Only enter if thread is not alive
-        if not is_alive:
+    if not is_alive:
+        # Create all directories required for entire app to avoid error
+        create_dir(['music','images','help','data'])
+        display("Started", 1)
+        clear_display(heading_text1, heading_text2, main_screen_text)
+        # t1 variable is none then
+        if t1 is None:
             # Creating thread and assigning it to t1 global variable
             t1 = thread_with_exception(main, main)
             # Make it daemon thread so that it stops when tkinter gui exits
@@ -763,22 +874,39 @@ def on_start():
             t1.start()
             # Set variable so that to indicate thread is alive
             is_alive = True
-        else:
-            error_message("Warning", "App is already started", 2)
+        elif t1 is not None:
+            # Only enter if thread is not alive
+            if not is_alive:
+                # Creating thread and assigning it to t1 global variable
+                t1 = thread_with_exception(main, main)
+                # Make it daemon thread so that it stops when tkinter gui exits
+                # If daemon is not specified it does not quits even after exiting GUI
+                t1.daemon = True
+                # Thread is created but not started , lets do this
+                t1.start()
+                # Set variable so that to indicate thread is alive
+                is_alive = True
+            else:
+                error_message("Warning", "App is already started", 2)
+    else:
+        error_message("Warning", "App is already started", 2)
 
 
 # When stop button is pressed
 def on_stop():
-    # Clear and update display
-    clear_dir(['music'])
-    clear_display(heading_text1, heading_text2, main_screen_text)
-    display("App has Stopped,Press start", 1)
-    display("Stopped", 2)
-    display("Press start to start the program",4)
+    """
+        The function stops thread when stop button is clicked.
+    """
     # Grab global variables instead of function variables
-    global t1, is_alive
     # t1 is thread 1 check if it is alive and only stop thread if thread is alive
+    global t1, is_alive
     if is_alive:
+        # Clear and update display
+        clear_dir(['music'])
+        clear_display(heading_text1, heading_text2, main_screen_text)
+        display("App has Stopped,Press start", 1)
+        display("Stopped", 2)
+        display("Press start to start the program", 4)
         if t1 is not None:
             # Set is_alive = False indicating thread is dead
             is_alive = False
@@ -792,6 +920,9 @@ def on_stop():
 
 # When restart button is pressed
 def on_restart():
+    """
+        The function restarts thread when restart button is clicked.
+    """
     on_stop()
     on_start()
     # Updated display
@@ -799,6 +930,9 @@ def on_restart():
 
 
 def clear_display(*args):
+    """
+        The function is used to clear display.
+    """
     # *args accepts set of commands as ex: clear_display(1,2) if we print(args) -> (1,2)
     for elem in args:
         # for all elements inside args apply set method
@@ -814,6 +948,12 @@ def on_clear():
 # Displays text on screen according to choice.There are four displays in the app
 # Ex:display("Hello", 1) displays "Hello" on first display
 def display(value, choice):
+    """
+        The function is used to show display.
+        Parameters:
+            value (str): Text to display.
+            choice (int): Screen number.
+    """
     # function switcher dictionary
     func_switcher = {
         1: notify_heading_text,
@@ -837,12 +977,18 @@ def display(value, choice):
 
 
 # Root timeout of tkinter (If using tkiner use this instead of time.sleep)
-def timeout(sec, func):
+def timeout(func,sec):
     root.after(sec, func)
 
 
 # Tweak volume of pc
 def tweak_volume(volume_points, volume_up=True):
+    """
+        The function is used to tweak volume.
+        Parameters :
+            volume_points (int): Volume points to tweak.
+            volume_up (bool): Volume up or down according to true or false.
+    """
     # Check if user wants to raise volume else down volume
     if volume_up:
         # Raise volume_points*2 volume , ex: if volume_points is 10 it raises 20 paints
@@ -857,82 +1003,19 @@ def tweak_volume(volume_points, volume_up=True):
 
 # If help function is called display and open default help.txt
 def on_help():
+    """
+        The function is used to open help text.
+    """
     path = os.getcwd()
     # path.join is used to join path because even if we forget to put / it adds itself
     path_of_file = os.path.join(path, 'help/help.txt')
     os.startfile(path_of_file, 'open')
 
 
-# themes and colors
-theme = {
-    'black_theme': {
-        'app-bg': '#404040',
-        'app-disp-bg': '#d1e7dd',
-        'n1-txt': 'white',
-        'h1-txt': '#0b3b24',
-        'h2-txt': '#0b3b24',
-        'main-txt': '#0f5132',
-        'btn': {
-            'start-bg': '#0275d8',
-            'start-fg': 'white',
-            'stop-bg': '#ff0000',
-            'stop-fg': 'white',
-            'rstart-bg': 'green',
-            'rstart-fg': 'white',
-        }
-    },
-    'white_theme': {
-        'app-bg': 'white',
-        'app-disp-bg': '#ffe7c9',
-        'n1-txt': '#404040',
-        'h1-txt': '#cc7100',
-        'h2-txt': '#cc7100',
-        'main-txt': '#e07c00',
-        'btn': {
-            'start-bg': '#0275d8',
-            'start-fg': 'white',
-            'stop-bg': '#ff0000',
-            'stop-fg': 'white',
-            'rstart-bg': 'green',
-            'rstart-fg': 'white',
-        }
-    },
-    'orange_theme': {
-        'app-bg': '#ff7700',
-        'app-disp-bg': '#ffd2ab',
-        'n1-txt': 'white',
-        'h1-txt': '#de5c00',
-        'h2-txt': '#de5c00',
-        'main-txt': '#ff6a00',
-        'btn': {
-            'start-bg': '#0275d8',
-            'start-fg': 'white',
-            'stop-bg': '#ff0000',
-            'stop-fg': 'white',
-            'rstart-bg': 'green',
-            'rstart-fg': 'white',
-        }
-    },
-    'blue_theme': {
-        'app-bg': '#00ffee',
-        'app-disp-bg': '#00a196',
-        'n1-txt': '#404040',
-        'h1-txt': '#960000',
-        'h2-txt': '#960000',
-        'main-txt': '#b50000',
-        'btn': {
-            'start-bg': '#0275d8',
-            'start-fg': 'white',
-            'stop-bg': '#ff0000',
-            'stop-fg': 'white',
-            'rstart-bg': 'green',
-            'rstart-fg': 'white',
-        }
-    }
-}
-
-
 def change_theme(theme_name):
+    """
+        The function to change the theme.
+    """
     # Changing theme of app
     notification1.configure(bg=theme_name['app-bg'], fg=theme_name['n1-txt'])
     heading1.configure(bg=theme_name['app-disp-bg'], fg=theme_name['h1-txt'])
@@ -946,6 +1029,9 @@ def change_theme(theme_name):
 
 
 def on_submit():
+    """
+        The function is used to submit.
+    """
     global inputValue
     inputValue = textBox.get("1.0", "end-1c")
     print(inputValue)
@@ -1079,9 +1165,3 @@ if __name__ == '__main__':
     root.configure(background=cur_theme['app-bg'], pady=10, padx=10, menu=menubar)
     # Start app now.
     root.mainloop()
-
-
-
-#     to_input  +'@gmail.com'
-# to = to_gmail_spaced.replace(" ", "").replace('dot','.').lower()
-# print(to)

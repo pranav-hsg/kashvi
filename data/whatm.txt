@@ -1,0 +1,77 @@
+from selenium import webdriver
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support.ui import Select
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.chrome.options import Options
+    import time
+
+    # contact = "Appa"
+    # text = "Hey, this message was sent using Selenium"
+    # driver = webdriver.Chrome('C:\Program Files (x86)\chromedriver.exe')
+    # driver.get("https://web.whatsapp.com")
+    # print("Scan QR Code, And then Enter")
+    # input()
+    # print("Logged In")
+    # time.sleep(10)
+    # inp_xpath_search = "//input[@title='Search or start new chat']"
+    # input_box_search = WebDriverWait(driver, 50).until(lambda driver: driver.find_element_by_xpath(inp_xpath_search))
+    # input_box_search.click()
+    # time.sleep(2)
+    # input_box_search.send_keys(contact)
+    # time.sleep(2)
+    # selected_contact = driver.find_element_by_xpath("//span[@title='" + contact + "']")
+    # selected_contact.click()
+    # inp_xpath = '//div[@class="_2S1VP copyable-text selectable-text"][@contenteditable="true"][@data-tab="1"]'
+    # input_box = driver.find_element_by_xpath(inp_xpath)
+    # time.sleep(2)
+    # input_box.send_keys(text + Keys.ENTER)
+    # time.sleep(2)
+
+    # import web driver from selenium
+    from selenium import webdriver
+
+    # creating an obect to open chrome and set the path inside () of chrome driver
+    driver = webdriver.Chrome('C:\Program Files (x86)\chromedriver.exe')
+    num = '7204014015'
+    msg = "EEnappa"
+    apnd_url = f'send?text={msg}&phone=+91{num}'
+    # passing the WhatsApp url
+    driver.get('https://web.whatsapp.com/'+apnd_url)
+
+    # getting data from user
+    # name = 'Appa'
+    # msg = input('enter your message')
+    count = 1
+    input('enter after scanning QR code')
+    time.sleep(10)
+    # # saving the defined contact name from your WhatsApp chat in user variable
+    # user = driver.find_element_by_xpath('//span[@title = "{}"]'.format(name))
+    #
+    # user.click()
+    #
+    # # name of span class of contatct
+    # msg_box = driver.find_element_by_class_name('_2_1wd')
+
+    for i in range(2):
+        num = '7204014015'
+        msg = "EEnappa"
+        apnd_url = f'send?text={msg}&phone=+91{num}'
+        # passing the WhatsApp url
+        driver.get('https://web.whatsapp.com/' + apnd_url)
+        button = driver.find_element_by_class_name('_1E0Oz')
+        button.click()
+
+    # import pywhatkit
+    # pywhatkit.info("ಕಂಪ್ಯೂಟರ್ ")
+    # import datetime
+    #
+    # tt =  datetime.datetime.now()
+    # print(tt)
+    # win32api.SetSystemTime(2000, tt.month, 0, tt.day,
+    #                        tt.hour, tt.minute, tt.second, tt.microsecond // 1000)
+    # filenames_to_update = ['theme.json','commands.json','errorcodes.json','bw.json']
+    # filedatas_to_update = [theme,commands,error_codes,b_w]
+    # # update_json(filenames_to_update,filedatas_to_update)
+    # filenames_to_retrive = ['theme.json', 'commands.json', 'errorcodes.json']
+    # print_json(retrieve_json(filenames_to_retrive)[0])

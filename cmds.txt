@@ -1,0 +1,2 @@
+2. pyinstaller --hidden-import="pkg_resources.py2_warn" --hidden-import="googleapiclient" --hidden-import="apiclient"  main.py --onefile -w
+1 . pyinstaller --onefile --debug  -w --paths=.\venv\Lib\site-packages  .\main.py 

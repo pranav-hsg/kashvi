@@ -1,0 +1,26 @@
+{
+ "internet-error": {
+  "etks": 1000,
+  "newsteller": 1001,
+  "weather-report": 1003,
+  "browser-open": 1004,
+  "google-search": 1005,
+  "youtube-link": 1006,
+  "mail": 1007
+ },
+ "unknown-error": {
+  "newsteller": 1008,
+  "notification": 1009,
+  "weather-report": 1010,
+  "google-maps": 1011
+ },
+ "dir-error": {
+  "dir": 1012
+ },
+ "whatsapp": {
+  "msg-error": 1013
+ },
+ "power": {
+  "tweak-power": 1014
+ }
+}

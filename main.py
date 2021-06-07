@@ -1199,3 +1199,4 @@ if __name__ == '__main__':
     root.configure(background=cur_theme['app-bg'], pady=10, padx=10, menu=menubar)
     # Start app now.
     root.mainloop()
+pass

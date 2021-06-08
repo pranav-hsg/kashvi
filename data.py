@@ -75,7 +75,7 @@ theme = {
 commands = {
     'time': ['ಟೈಮ್', 'ಟೈಮ್ ಎಷ್ಟು', 'ಗಂಟೆ ಎಷ್ಟು', 'ಟೈಮೆಷ್ಟು', 'ಸಮಯ ಎಷ್ಟು', 'ಸಮಯವೆಷ್ಟು'],
     'news': ['ವಾರ್ತೆ ತಿಳಿಸು', 'ನ್ಯೂಸ್ ತಿಳಿಸು', 'ಮುಖ್ಯ ವಾರ್ತೆ ತಿಳಿಸು', 'ಸುದ್ದಿ ತಿಳಿಸು'],
-    'wikipedia': ['ವಿಕಿಪೇಡಿಯ', 'ವಿಕಿಪಿಡಿಯಾ', 'ವಿಕಿಪೀಡಿಯ'],
+    'wikipedia': ['ವಿಕಿಪಿಡಿಯಾ','ವಿಕಿಪೇಡಿಯ','ವಿಕಿಪೀಡಿಯಾ', 'ವಿಕಿಪೀಡಿಯ'],
     'you-tube': ['ಯೂಟ್ಯೂಬ್ ಅನ್ನು ತೆರೆಯಿರಿ', 'ಯೂಟ್ಯೂಬ್ ತೆರೆ', 'ಯುಟ್ಯೂಬ ಓಪನ್', 'ಓಪನ್ ಯುಟ್ಯೂಬ', 'ಓಪನ್ ಯುಟ್ಯೂಬ್',
                  'ಯುಟ್ಯೂಬ್ ','ಯೂಟ್ಯೂಬ್'],
     'google': ['ಗೂಗಲ್ ಅನ್ನು ತೆರೆಯಿರಿ', 'ಗೂಗಲ್ ತೆರೆ', 'ಗೂಗಲ್ ಓಪನ್', 'ಓಪನ್ ಗೂಗಲ್'],
@@ -174,7 +174,7 @@ def print_json(json_list,func=print):
 
 
 if __name__ == '__main__':
-    # write_jsonfile('bw.json',b_w)
+    write_jsonfile('commands.json',commands)
     # update_json_files('bw.json',b_w)
     # print_json(read_jsonfile('bw.json'))
     print_json(retrieve_json_files(['commands.json'])[1])

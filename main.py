@@ -137,6 +137,18 @@ def handle_error(callback_func):
     return decorator_function
 
 
+def run_async(callback_func):
+    def decorator_function(*args, **kwargs):
+        try:
+            t1 = threading.Thread(target=etks, args=("Information is being fetched from the Internet,please wait for a while",))
+            t1.start()
+            result = callback_func(*args)
+            t1.join()
+            return result
+        except:
+            return ''
+    return decorator_function
+
 # Tests if any of the array of words is present in given line
 @handle_error
 def testifarrayinline(arr, line):
@@ -152,7 +164,7 @@ def testifarrayinline(arr, line):
     # for every string in array put the string to elem
     for elem in arr:
         # if elem in line:
-        if re.search(elem, line):
+        if re.search(fr'({elem}+\s)|({elem}$)', line):
             return True
     return False
 
@@ -182,9 +194,11 @@ def return_searched_word(arr, line):
     # for every string in array put the string to elem
     for elem in arr:
         # if elem is in line:
-        if re.search(elem, line):
+        # re.search(elem, line)
+
+        if re.search(fr'({elem}+\s)|({elem}$)', line):
             return elem
-    return None
+    return ''
 
 
 @handle_error
@@ -293,16 +307,18 @@ def text_translator(text,dest='kn'):
         Returns:
             str : Translated text in the form of string.
     """
-    # keep this for emergency incase if other code does not works
-    # from google_trans_new import google_translator
-    # translator = google_translator()
-    # translate_text = translator.translate(text, lang_tgt=dest)
-    # lang_src = 'en'
-    # print(translate_text)
-    translator = Translator()
-    translation = translator.translate(text, dest=dest)
-    translate_text = translation.text
-    return translate_text
+    # if Translator().translate('ಹೌದು', dest='en').text in 'yes Yes':
+    try:
+        translator = Translator()
+        translation = translator.translate(text, dest=dest)
+        translate_text = translation.text
+        return translate_text
+    except:
+        print("Second translator is used as fallback")
+        from google_trans_new import google_translator
+        translator = google_translator()
+        translate_text = translator.translate(text, lang_tgt=dest)
+        return translate_text
 
 
 # English text to kannada speech function
@@ -536,6 +552,7 @@ def utc_to_time(secsTillEpoch):
 
 
 # Enter latitude and longitude to get weather information
+@run_async
 @handle_error
 def weather_report(latitude=13.66675, longitude=75.30914, api_key=api_keys['weather_api']):
     """
@@ -577,7 +594,7 @@ def weather_report(latitude=13.66675, longitude=75.30914, api_key=api_keys['weat
         # Speak all info through etks function
         return windInfo + weatherInfo + temperatureInfo + pressureInfo + humidityInfo + sunRiseInfo + sunSetInfo
 
-
+@run_async
 @handle_error
 def wikipedia_search(query, sentences=2):
     """
@@ -586,8 +603,9 @@ def wikipedia_search(query, sentences=2):
             query (str): Search string to query.
             sentences (int): Number of sentences to fetch.
     """
+    print(query)
     result = wikipedia.summary(query, sentences=sentences)
-    # print("result:", result)
+    print("result:", result)
     return remove_special_charecters(result)
 
 
@@ -754,9 +772,8 @@ def main(commands=commands):
                 etks(news)
         # If user asks for wikipedia search
         elif testifarrayinline(commands['wikipedia'], user_input):
-            wikiQueryKan = user_input.replace(return_searched_word(commands['wikipedia'], user_input), '')
-            wikiQueryEng = text_translator(wikiQueryKan, dest='en')
-            etks(f"Searching wikipedia about {wikiQueryEng}")
+            wikiQueryKan = user_input.replace(return_searched_word(commands['wikipedia'], user_input),'')
+            wikiQueryEng = text_translator(wikiQueryKan, 'en')
             result = wikipedia_search(wikiQueryEng)
             if result:
                 etks("According to wikipedia")
@@ -781,7 +798,7 @@ def main(commands=commands):
             open_website("https://www.instagram.com/")
         # If user asks for weather data
         elif testifarrayinline(commands['weather'], user_input):
-            etks("Information about weather is being fetched ,please wait")
+
             result = weather_report()
             if result:
                 etks(result)
@@ -881,6 +898,8 @@ def on_start():
     """
         The function starts thread when start button is clicked.
     """
+    # Clean music directory if app is not stopped properly last time
+    clear_dir(['music'])
     # Grab global variables instead of function variables
     # If global is not specified function variables are called
     global t1, is_alive
@@ -1199,4 +1218,3 @@ if __name__ == '__main__':
     root.configure(background=cur_theme['app-bg'], pady=10, padx=10, menu=menubar)
     # Start app now.
     root.mainloop()
-pass

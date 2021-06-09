@@ -27,6 +27,7 @@ import tkinter as tk
 from tkinter import messagebox,font
 import ctypes
 import threading
+import random
 
 try:
     from plyer import notification
@@ -611,7 +612,6 @@ def wikipedia_search(query, sentences=2):
 
 @handle_error
 def ret_rand_cmd():
-    import random
     random_element = random.choice(list(commands.values()))
     cmd = random.choice(random_element)
     print(cmd)
@@ -1064,14 +1064,8 @@ def on_help():
     path_of_file = os.path.join(path, 'help/help.txt')
     os.startfile(path_of_file, 'open')
 
-
-def askBgColor(num,theme_id,theme_name):
-    if num == theme_id: return "#000000"
-
-
-
 @handle_error
-def change_theme(theme_name,theme_id):
+def change_theme(theme_name,theme_arr):
     """
         The function to change the theme.
     """
@@ -1087,14 +1081,31 @@ def change_theme(theme_name,theme_id):
     root.configure(bg=theme_name['app-bg'])
     global thememenu
     menubar.delete(4)
-    for me in theme:
-        print(me)
+    cur_theme_submenu_bg={
+        'initial':'white',
+        'highlight':theme_name['app-disp-bg']
+    }
+    cur_theme_submenu_fg={
+        'initial': 'black',
+        'highlight': theme_name['main-txt']
+    }
+    cur_theme_colors=[0,1,2,3]
     thememenu = Menu(menubar, tearoff=0)
-    thememenu.add_command(label="Light theme",background=lambda:askBgColor(1,theme_id,theme_name),command=lambda: change_theme(theme['white_theme'],1))
-    thememenu.add_command(label="Dark theme",background=lambda:askBgColor(2,theme_id,theme_name), command=lambda: change_theme(theme['black_theme'],2))
-    thememenu.add_command(label="Warm theme",background=lambda:askBgColor(3,theme_id,theme_name), command=lambda: change_theme(theme['orange_theme'],3))
-    thememenu.add_command(label="Cool theme",background=lambda:askBgColor(4,theme_id,theme_name), command=lambda: change_theme(theme['blue_theme'],4))
+    bg_colors = list(map(lambda x, y: cur_theme_submenu_bg['highlight'] if bool(y) else cur_theme_submenu_bg['initial'],
+                         cur_theme_colors,theme_arr))
+    fg_colors = list(map(lambda x, y: cur_theme_submenu_fg['highlight'] if bool(y) else cur_theme_submenu_fg['initial'],
+                         cur_theme_colors, theme_arr))
+    thememenu.add_command(label="Light theme",background=bg_colors[0],foreground=fg_colors[0],command=lambda: change_theme(theme['white_theme'],[1,0,0,0]))
+    thememenu.add_command(label="Dark theme",background=bg_colors[1],foreground=fg_colors[1], command=lambda: change_theme(theme['black_theme'],[0,1,0,0]))
+    thememenu.add_command(label="Warm theme",background=bg_colors[2],foreground=fg_colors[2], command=lambda: change_theme(theme['orange_theme'],[0,0,1,0]))
+    thememenu.add_command(label="Cool theme",background=bg_colors[3],foreground=fg_colors[3], command=lambda: change_theme(theme['blue_theme'],[0,0,0,1]))
     menubar.add_cascade(label="Theme", menu=thememenu)
+    # Cache data every time user changes theme
+    @handle_error
+    def write_to_cache(filename, filedata):
+        dt.write_jsonfile(filename, filedata)
+    # Call the function
+    write_to_cache('cache_theme.json', [theme_name, theme_arr])
 
 @handle_error
 def on_submit():
@@ -1109,11 +1120,19 @@ def on_submit():
     textBox.delete("1.0", 'end')
     print("done waiting.")
 
-def curnt_theme_n_id():
-    return [theme['black_theme'],2]
+
 if __name__ == '__main__':
     # Set default theme of the app
-    [cur_theme,theme_id] = curnt_theme_n_id()
+    # Retrieve cached data from cache_theme file if present
+    @handle_error
+    def retrieve_cached_theme(file_name):
+        if (dt.read_jsonfile(file_name)): return dt.read_jsonfile(file_name)
+    # Place the returned value in a variable named res
+    res= retrieve_cached_theme('cache_theme.json')
+    # Check if returned result is not empty, if it is not empty then destructure result
+    if res:[cur_theme, theme_arr]=res
+    # If resposne is empty (usually when an error occurs or if file is not present) return default theme (hard coded)
+    else:[cur_theme, theme_arr]=[theme['black_theme'], [0, 1, 0, 0]]
     # global variables
     # t1 is thread one which is used to start or stop a thread
     t1 = None
@@ -1233,13 +1252,18 @@ if __name__ == '__main__':
     menubar.add_cascade(label="Help", menu=helpmenu)
     # Theme options menu design and call change theme fuction if any option is pressed
     thememenu = Menu(menubar, tearoff=0)
-    thememenu.add_command(label="Light theme",command=lambda: change_theme(theme['white_theme'],1))
-    thememenu.add_command(label="Dark theme", command=lambda: change_theme(theme['black_theme'],2))
-    thememenu.add_command(label="Warm theme", command=lambda: change_theme(theme['orange_theme'],3))
-    thememenu.add_command(label="Cool theme", command=lambda: change_theme(theme['blue_theme'],4))
+    thememenu.add_command(label="Light theme",
+                          command=lambda: change_theme(theme['white_theme'], [1, 0, 0, 0]))
+    thememenu.add_command(label="Dark theme",
+                          command=lambda: change_theme(theme['black_theme'], [0, 1, 0, 0]))
+    thememenu.add_command(label="Warm theme",
+                          command=lambda: change_theme(theme['orange_theme'], [0, 0, 1, 0]))
+    thememenu.add_command(label="Cool theme",
+                          command=lambda: change_theme(theme['blue_theme'], [0, 0, 0, 1]))
     menubar.add_cascade(label="Theme", menu=thememenu)
-    for i in font.families():
-        print('\n'+i)
+    # Call change theme function to set current theme for first time
+    # We are using destructured variable as arguments
+    change_theme(cur_theme,theme_arr)
     # Put default settings to main window
     root.configure(background=cur_theme['app-bg'], pady=10, padx=10, menu=menubar)
     # Start app now.

@@ -1,0 +1,24 @@
+[
+ {
+  "app-bg": "#404040",
+  "app-disp-bg": "#d1e7dd",
+  "n1-txt": "white",
+  "h1-txt": "#0b3b24",
+  "h2-txt": "#0b3b24",
+  "main-txt": "#0f5132",
+  "btn": {
+   "start-bg": "#0275d8",
+   "start-fg": "white",
+   "stop-bg": "#ff0000",
+   "stop-fg": "white",
+   "rstart-bg": "green",
+   "rstart-fg": "white"
+  }
+ },
+ [
+  0,
+  1,
+  0,
+  0
+ ]
+]

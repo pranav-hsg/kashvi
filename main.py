@@ -24,7 +24,7 @@ from bs4 import BeautifulSoup
 import time
 from tkinter import *
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox,font
 import ctypes
 import threading
 
@@ -1064,8 +1064,14 @@ def on_help():
     path_of_file = os.path.join(path, 'help/help.txt')
     os.startfile(path_of_file, 'open')
 
+
+def askBgColor(num,theme_id,theme_name):
+    if num == theme_id: return "#000000"
+
+
+
 @handle_error
-def change_theme(theme_name):
+def change_theme(theme_name,theme_id):
     """
         The function to change the theme.
     """
@@ -1079,6 +1085,16 @@ def change_theme(theme_name):
     stop_btn.configure(bg=cur_theme['btn']['stop-bg'], fg=cur_theme['btn']['stop-fg'])
     restart_btn.configure(bg=cur_theme['btn']['rstart-bg'], fg=cur_theme['btn']['rstart-fg'])
     root.configure(bg=theme_name['app-bg'])
+    global thememenu
+    menubar.delete(4)
+    for me in theme:
+        print(me)
+    thememenu = Menu(menubar, tearoff=0)
+    thememenu.add_command(label="Light theme",background=lambda:askBgColor(1,theme_id,theme_name),command=lambda: change_theme(theme['white_theme'],1))
+    thememenu.add_command(label="Dark theme",background=lambda:askBgColor(2,theme_id,theme_name), command=lambda: change_theme(theme['black_theme'],2))
+    thememenu.add_command(label="Warm theme",background=lambda:askBgColor(3,theme_id,theme_name), command=lambda: change_theme(theme['orange_theme'],3))
+    thememenu.add_command(label="Cool theme",background=lambda:askBgColor(4,theme_id,theme_name), command=lambda: change_theme(theme['blue_theme'],4))
+    menubar.add_cascade(label="Theme", menu=thememenu)
 
 @handle_error
 def on_submit():
@@ -1093,10 +1109,11 @@ def on_submit():
     textBox.delete("1.0", 'end')
     print("done waiting.")
 
-
+def curnt_theme_n_id():
+    return [theme['black_theme'],2]
 if __name__ == '__main__':
     # Set default theme of the app
-    cur_theme = theme['black_theme']
+    [cur_theme,theme_id] = curnt_theme_n_id()
     # global variables
     # t1 is thread one which is used to start or stop a thread
     t1 = None
@@ -1145,7 +1162,7 @@ if __name__ == '__main__':
     main_screen = Label(height=14, wraplength=380, textvariable=main_screen_text, bd=0)
     main_screen.pack(fill=BOTH, side=TOP, expand=TRUE)
     main_screen.configure(bg=cur_theme['app-disp-bg'], fg=cur_theme['main-txt'], font=('Helvetica', 12, 'bold'),
-                          pady=10)
+                          pady=10,)
     # Set main screen text upon start of app
     main_screen_text.set(out_txt)
     textBox = Text(root, height=1, width=20)
@@ -1153,7 +1170,7 @@ if __name__ == '__main__':
     submit_btn = Button(root, borderwidth=0, fg=cur_theme['btn']['start-fg'], activebackground='#025aa5',
                         activeforeground='white',
                         bg=cur_theme['btn']['start-bg'], text="Submit", command=lambda: on_submit(),
-                        font=('Helvetica', 8))
+                        font=('Lucida Sans Typewriter', 8))
     # button = tk.Button(root, text="Click Me", command=lambda: var.set(1))
     # button.place(relx=.5, rely=.5, anchor="c")
     submit_btn.pack()
@@ -1163,25 +1180,32 @@ if __name__ == '__main__':
     display("Stopped , Press Start", 1)
     # Start button creation and design and bg and fg are set to variable so that they can be controlled by change_theme function
     start_btn_txt = tk.StringVar()
+    # Creating a photoimage object to use image
+    startphoto = PhotoImage(file=r"./images/start.png")
+    start_image = startphoto.subsample(1, 1)
     start_btn = Button(root, borderwidth=0, fg=cur_theme['btn']['start-fg'], activebackground='#025aa5',
                        activeforeground='white',
-                       bg=cur_theme['btn']['start-bg'], textvariable=start_btn_txt, command=on_start,
-                       font=('Helvetica', 12, 'bold'), padx=10, pady=6, )
+                       bg=cur_theme['btn']['start-bg'], image = start_image,text="Start",compound = RIGHT, command=on_start,
+                       font=('Helvetica', 12, 'bold'), padx=6, pady=6)
     start_btn_txt.set('Start')
     start_btn.pack(side=LEFT)
     # Stop button creation and design and bg and fg are set to variable so that they can be controlled by change_theme function
     stop_btn_txt = tk.StringVar()
+    stopphoto = PhotoImage(file=r"./images/stop.png")
+    stop_image = stopphoto.subsample(1, 1)
     stop_btn = Button(root, borderwidth=0, fg=cur_theme['btn']['stop-fg'], activebackground='#ed0202',
                       activeforeground='white', bg=cur_theme['btn']['stop-bg'],
-                      textvariable=stop_btn_txt, command=on_stop, font=('Helvetica', 12, 'bold'), padx=10, pady=6)
+                      textvariable=stop_btn_txt, command=on_stop, font=('Helvetica', 12, 'bold'), padx=6, pady=6,image=stop_image,compound=RIGHT)
     stop_btn_txt.set('Stop')
-    stop_btn.pack(side=LEFT, padx=90, pady=10)
+    stop_btn.pack(side=LEFT, padx=60, pady=10)
     # Restart button creation and design and bg and fg are set to variable so that they can be controlled by change_theme function
     restart_btn_txt = tk.StringVar()
-    restart_btn = Button(root, borderwidth=0, fg=cur_theme['btn']['rstart-fg'], activebackground='#40556a',
+    restartphoto = PhotoImage(file=r"./images/rest.png")
+    restart_image = restartphoto.subsample(12,12)
+    restart_btn = Button(root,borderwidth=0, fg=cur_theme['btn']['rstart-fg'], activebackground='#40556a',
                          activeforeground='white', bg=cur_theme['btn']['rstart-bg'],
-                         textvariable=restart_btn_txt, command=on_restart, font=('Helvetica', 12, 'bold'), padx=10,
-                         pady=6)
+                         textvariable=restart_btn_txt, command=on_restart, font=('Helvetica', 12, 'bold'), padx=6,
+                         pady=6,image=restart_image,compound=RIGHT)
     restart_btn_txt.set('Restart')
     restart_btn.pack(side=RIGHT)
     # Create menubar
@@ -1209,11 +1233,13 @@ if __name__ == '__main__':
     menubar.add_cascade(label="Help", menu=helpmenu)
     # Theme options menu design and call change theme fuction if any option is pressed
     thememenu = Menu(menubar, tearoff=0)
-    thememenu.add_command(label="Light theme", command=lambda: change_theme(theme['white_theme']))
-    thememenu.add_command(label="Dark theme", command=lambda: change_theme(theme['black_theme']))
-    thememenu.add_command(label="Warm theme", command=lambda: change_theme(theme['orange_theme']))
-    thememenu.add_command(label="Cool theme", command=lambda: change_theme(theme['blue_theme']))
+    thememenu.add_command(label="Light theme",command=lambda: change_theme(theme['white_theme'],1))
+    thememenu.add_command(label="Dark theme", command=lambda: change_theme(theme['black_theme'],2))
+    thememenu.add_command(label="Warm theme", command=lambda: change_theme(theme['orange_theme'],3))
+    thememenu.add_command(label="Cool theme", command=lambda: change_theme(theme['blue_theme'],4))
     menubar.add_cascade(label="Theme", menu=thememenu)
+    for i in font.families():
+        print('\n'+i)
     # Put default settings to main window
     root.configure(background=cur_theme['app-bg'], pady=10, padx=10, menu=menubar)
     # Start app now.

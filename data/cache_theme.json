@@ -1,11 +1,11 @@
 [
  {
-  "app-bg": "#404040",
-  "app-disp-bg": "#d1e7dd",
-  "n1-txt": "white",
-  "h1-txt": "#0b3b24",
-  "h2-txt": "#0b3b24",
-  "main-txt": "#0f5132",
+  "app-bg": "#00ffee",
+  "app-disp-bg": "#00a196",
+  "n1-txt": "#404040",
+  "h1-txt": "#960000",
+  "h2-txt": "#960000",
+  "main-txt": "#b50000",
   "btn": {
    "start-bg": "#0275d8",
    "start-fg": "white",
@@ -15,10 +15,5 @@
    "rstart-fg": "white"
   }
  },
- [
-  0,
-  1,
-  0,
-  0
- ]
+ 4
 ]

@@ -28,7 +28,7 @@ from tkinter import messagebox,font
 import ctypes
 import threading
 import random
-
+import itertools
 try:
     from plyer import notification
 except Exception as e:
@@ -122,6 +122,8 @@ def handle_error(callback_func):
             error_message(f"Error occurred inside e[{callback_func.__name__}]",'Error Details: \n'+str(e).capitalize(), 3)
             if  callback_func.__name__=='text_translator':
                 result="Sorry error occurred while text translation"
+            if callback_func.__name__=='takeuserinput':
+                on_stop()
         else:
             if callback_func.__name__ == 'send_mail' or callback_func.__name__ == 'swm':
                 display('Successfully sent message', 4)
@@ -742,6 +744,9 @@ def recursive_input(lang='kn'):
     return user_input
 
 
+def is_valid(key,user_input):
+    return testifarrayinline(commands[key], user_input)
+
 count = 0
 # Main function
 @handle_error
@@ -761,17 +766,17 @@ def main(commands=commands):
         # Checks for bad words
         bwc(user_input)
         # If user asks for time
-        if testifarrayinline(commands['time'], user_input):
+        if is_valid('time',user_input):
             etks(curtime())
         # If user asks for news
-        elif testifarrayinline(commands['news'], user_input):
+        elif is_valid('news',user_input):
             # etks("How many news do you want to hear")
             print('How')
             # take user input('en', "Tell me how many news do you want to hear....")
             for news in newsretriever(2):
                 etks(news)
         # If user asks for wikipedia search
-        elif testifarrayinline(commands['wikipedia'], user_input):
+        elif is_valid('wikipedia',user_input):
             wikiQueryKan = user_input.replace(return_searched_word(commands['wikipedia'], user_input),'')
             wikiQueryEng = text_translator(wikiQueryKan, 'en')
             result = wikipedia_search(wikiQueryEng)
@@ -781,50 +786,49 @@ def main(commands=commands):
             else:
                 etks("Sorry there is no information")
         # If user asks to open you tube browser
-        elif testifarrayinline(commands['you-tube'], user_input):
+        elif is_valid('you-tube',user_input):
             yt_query = user_input.replace(return_searched_word(commands['you-tube'], user_input), '')
             open_website(get_youtube_link(text_translator(yt_query, 'kn')))
         # If user asks to open google in browser
-        elif testifarrayinline(commands['google'], user_input):
+        elif is_valid('google',user_input):
             open_website("https://www.google.com")
         # If user asks to open google in browser
-        elif testifarrayinline(commands['twitter'], user_input):
+        elif is_valid('twitter',user_input):
             open_website("https://twitter.com")
         # If user asks to open google in browser
-        elif testifarrayinline(commands['facebook'], user_input):
+        elif is_valid('facebook',user_input):
             open_website("https://www.facebook.com")
         # If user asks to open google in browser
-        elif testifarrayinline(commands['instagram'], user_input):
+        elif is_valid('instagram',user_input):
             open_website("https://www.instagram.com/")
         # If user asks for weather data
-        elif testifarrayinline(commands['weather'], user_input):
-
+        elif is_valid('weather',user_input):
             result = weather_report()
             if result:
                 etks(result)
             else:
                 error_message(f"Error e[{error_codes['unknown-error']['weather-report']}]", e, 3)
         # If user asks for message using whatsapp
-        elif testifarrayinline(commands['whatsapp'], user_input):
+        elif is_valid('whatsapp',user_input):
             try:
                 # call send whatsapp message
                 swm()
             except Exception as e:
                 print("Inside main in whatsapp", e)
-        elif testifarrayinline(commands['e-mail'], user_input):
+        elif is_valid('e-mail',user_input):
             send_mail()
         # If user asks for computer operation like on,off,restart
-        elif testifarrayinline(commands['power-off'], user_input):
+        elif is_valid('power-off',user_input):
             # Power off fucntion
             tweak_power("shutdown /s /t 1", 'power-off')
-        elif testifarrayinline(commands['restart'], user_input):
+        elif is_valid('restart',user_input):
             # Restart fucntion
             tweak_power("shutdown /r /t 1", 'restart')
-        elif testifarrayinline(commands['sleep'], user_input):
+        elif is_valid('sleep',user_input):
             # Sleep function
             tweak_power("rundll32.exe powrprof.dll,SetSuspendState 0,1,0", 'sleep')
         # If user asks for Google search the given keyword
-        elif testifarrayinline(commands['google-text'], user_input):
+        elif is_valid('google-text',user_input):
             # Google function
             # replace function replaces first parameter with second parameter
             # return searched word returns exactly key word used by user to trigger this elif block
@@ -841,7 +845,7 @@ def main(commands=commands):
                 error_message(f"Error e[{error_codes['internet-error']['google-search']}]",
                               'Internet problem occurred while google search', 3)
         # If user asks for google map to show a village/city
-        elif testifarrayinline(commands['map'], user_input):
+        elif is_valid('map',user_input):
             # Google map function
             map_query = user_input.replace(return_searched_word(commands['map'], user_input), '')
             # map_query = text_translator(map_query,'en')
@@ -1065,7 +1069,7 @@ def on_help():
     os.startfile(path_of_file, 'open')
 
 @handle_error
-def change_theme(theme_name,theme_arr):
+def set_theme(theme_name,theme_id):
     """
         The function to change the theme.
     """
@@ -1090,22 +1094,24 @@ def change_theme(theme_name,theme_arr):
         'highlight': theme_name['main-txt']
     }
     cur_theme_colors=[0,1,2,3]
+    theme_arr = [0]*4
+    theme_arr[theme_id-1]=1
     thememenu = Menu(menubar, tearoff=0)
     bg_colors = list(map(lambda x, y: cur_theme_submenu_bg['highlight'] if bool(y) else cur_theme_submenu_bg['initial'],
                          cur_theme_colors,theme_arr))
     fg_colors = list(map(lambda x, y: cur_theme_submenu_fg['highlight'] if bool(y) else cur_theme_submenu_fg['initial'],
-                         cur_theme_colors, theme_arr))
-    thememenu.add_command(label="Light theme",background=bg_colors[0],foreground=fg_colors[0],command=lambda: change_theme(theme['white_theme'],[1,0,0,0]))
-    thememenu.add_command(label="Dark theme",background=bg_colors[1],foreground=fg_colors[1], command=lambda: change_theme(theme['black_theme'],[0,1,0,0]))
-    thememenu.add_command(label="Warm theme",background=bg_colors[2],foreground=fg_colors[2], command=lambda: change_theme(theme['orange_theme'],[0,0,1,0]))
-    thememenu.add_command(label="Cool theme",background=bg_colors[3],foreground=fg_colors[3], command=lambda: change_theme(theme['blue_theme'],[0,0,0,1]))
+                         cur_theme_colors,theme_arr))
+    thememenu.add_command(label="Light theme",background=bg_colors[0],foreground=fg_colors[0],command=lambda: set_theme(theme['white_theme'],1))
+    thememenu.add_command(label="Dark theme",background=bg_colors[1],foreground=fg_colors[1], command=lambda: set_theme(theme['black_theme'],2))
+    thememenu.add_command(label="Warm theme",background=bg_colors[2],foreground=fg_colors[2], command=lambda: set_theme(theme['orange_theme'],3))
+    thememenu.add_command(label="Cool theme",background=bg_colors[3],foreground=fg_colors[3], command=lambda: set_theme(theme['blue_theme'],4))
     menubar.add_cascade(label="Theme", menu=thememenu)
     # Cache data every time user changes theme
     @handle_error
     def write_to_cache(filename, filedata):
         dt.write_jsonfile(filename, filedata)
     # Call the function
-    write_to_cache('cache_theme.json', [theme_name, theme_arr])
+    write_to_cache('cache_theme.json', [theme_name, theme_id])
 
 @handle_error
 def on_submit():
@@ -1130,9 +1136,9 @@ if __name__ == '__main__':
     # Place the returned value in a variable named res
     res= retrieve_cached_theme('cache_theme.json')
     # Check if returned result is not empty, if it is not empty then destructure result
-    if res:[cur_theme, theme_arr]=res
+    if res:[cur_theme, theme_id]=res
     # If resposne is empty (usually when an error occurs or if file is not present) return default theme (hard coded)
-    else:[cur_theme, theme_arr]=[theme['black_theme'], [0, 1, 0, 0]]
+    else:[cur_theme, theme_id]=[theme['black_theme'], 2]
     # global variables
     # t1 is thread one which is used to start or stop a thread
     t1 = None
@@ -1197,7 +1203,7 @@ if __name__ == '__main__':
     # Show default display upon app start
     display("Stopped", 2)
     display("Stopped , Press Start", 1)
-    # Start button creation and design and bg and fg are set to variable so that they can be controlled by change_theme function
+    # Start button creation and design and bg and fg are set to variable so that they can be controlled by set_theme function
     start_btn_txt = tk.StringVar()
     # Creating a photoimage object to use image
     startphoto = PhotoImage(file=r"./images/start.png")
@@ -1208,7 +1214,7 @@ if __name__ == '__main__':
                        font=('Helvetica', 12, 'bold'), padx=6, pady=6)
     start_btn_txt.set('Start')
     start_btn.pack(side=LEFT)
-    # Stop button creation and design and bg and fg are set to variable so that they can be controlled by change_theme function
+    # Stop button creation and design and bg and fg are set to variable so that they can be controlled by set_theme function
     stop_btn_txt = tk.StringVar()
     stopphoto = PhotoImage(file=r"./images/stop.png")
     stop_image = stopphoto.subsample(1, 1)
@@ -1217,7 +1223,7 @@ if __name__ == '__main__':
                       textvariable=stop_btn_txt, command=on_stop, font=('Helvetica', 12, 'bold'), padx=6, pady=6,image=stop_image,compound=RIGHT)
     stop_btn_txt.set('Stop')
     stop_btn.pack(side=LEFT, padx=60, pady=10)
-    # Restart button creation and design and bg and fg are set to variable so that they can be controlled by change_theme function
+    # Restart button creation and design and bg and fg are set to variable so that they can be controlled by set_theme function
     restart_btn_txt = tk.StringVar()
     restartphoto = PhotoImage(file=r"./images/rest.png")
     restart_image = restartphoto.subsample(12,12)
@@ -1251,19 +1257,9 @@ if __name__ == '__main__':
     helpmenu.add_command(label="About us", command=lambda: print("K"))
     menubar.add_cascade(label="Help", menu=helpmenu)
     # Theme options menu design and call change theme fuction if any option is pressed
-    thememenu = Menu(menubar, tearoff=0)
-    thememenu.add_command(label="Light theme",
-                          command=lambda: change_theme(theme['white_theme'], [1, 0, 0, 0]))
-    thememenu.add_command(label="Dark theme",
-                          command=lambda: change_theme(theme['black_theme'], [0, 1, 0, 0]))
-    thememenu.add_command(label="Warm theme",
-                          command=lambda: change_theme(theme['orange_theme'], [0, 0, 1, 0]))
-    thememenu.add_command(label="Cool theme",
-                          command=lambda: change_theme(theme['blue_theme'], [0, 0, 0, 1]))
-    menubar.add_cascade(label="Theme", menu=thememenu)
     # Call change theme function to set current theme for first time
     # We are using destructured variable as arguments
-    change_theme(cur_theme,theme_arr)
+    set_theme(cur_theme,theme_id)
     # Put default settings to main window
     root.configure(background=cur_theme['app-bg'], pady=10, padx=10, menu=menubar)
     # Start app now.

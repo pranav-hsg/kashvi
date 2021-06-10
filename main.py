@@ -107,7 +107,7 @@ error_codes = dt.retrieve_json_files(['errorcodes.json'])[0][0]
 
 
 #  Error handling decorator
-def handle_error(callback_func,after_error_quit_main_thread=False):
+def handle_error(callback_func):
     def decorator_function(*args, **kwargs):
         non_notify = ['cur_time']
         try:
@@ -120,8 +120,6 @@ def handle_error(callback_func,after_error_quit_main_thread=False):
             result = ''
             print(f"Error occurred inside [" + callback_func.__name__ + "]")
             error_message(f"Error occurred inside e[{callback_func.__name__}]",'Error Details: \n'+str(e).capitalize(), 3)
-            if after_error_quit_main_thread:
-                on_stop()
             if  callback_func.__name__=='text_translator':
                 result="Sorry error occurred while text translation"
         else:
@@ -234,7 +232,7 @@ def send_mail():
 
 
 # This function accepts a command from the user in speech form
-@handle_error(True)
+@handle_error
 def takeuserinput(lang='kn', msg='Listening...'):
     """
         The function which accepts input in the form of audio from the user.
@@ -1066,7 +1064,6 @@ def on_help():
     path_of_file = os.path.join(path, 'help/help.txt')
     os.startfile(path_of_file, 'open')
 
-
 @handle_error
 def change_theme(theme_name,theme_arr):
     """
@@ -1152,7 +1149,7 @@ if __name__ == '__main__':
     windowHeight = root.winfo_reqheight()
     windowHeight = 600
     print("Width", windowWidth, "Height", windowHeight)
-    # width = root.winfo_reqwidth()
+    idth = root.winfo_reqwidth()
     # Gets both half the screen width/height and window width/height
     positionRight = int(root.winfo_screenwidth() / 2 - windowWidth / 2)
     positionDown = int(root.winfo_screenheight() / 2 - windowHeight / 2)

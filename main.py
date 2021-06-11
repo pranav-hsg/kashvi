@@ -6,7 +6,6 @@ import datetime
 import requests
 import json
 from apiclient.discovery import build
-
 try:
     import pywhatkit
 except Exception as e:

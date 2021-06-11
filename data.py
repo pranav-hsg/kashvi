@@ -1,9 +1,4 @@
-
 import json
-import os
-
-import win32api
-
 theme = {
     'black_theme': {
         'app-bg': '#404040',
@@ -70,8 +65,6 @@ theme = {
         }
     }
 }
-
-
 commands = {
     'time': ['ಟೈಮ್', 'ಟೈಮ್ ಎಷ್ಟು', 'ಗಂಟೆ ಎಷ್ಟು', 'ಟೈಮೆಷ್ಟು', 'ಸಮಯ ಎಷ್ಟು', 'ಸಮಯವೆಷ್ಟು'],
     'news': ['ವಾರ್ತೆ ತಿಳಿಸು', 'ನ್ಯೂಸ್ ತಿಳಿಸು', 'ಮುಖ್ಯ ವಾರ್ತೆ ತಿಳಿಸು', 'ಸುದ್ದಿ ತಿಳಿಸು'],
@@ -98,9 +91,6 @@ commands = {
     'negative-statements': ['ನೋ', 'ಇಲ್ಲ', 'ಅಲ್ಲ'],
     'meaning':['ಶಬ್ದದ ಅರ್ಥ','ಶಬ್ದ ಅರ್ಥ','ಶಬ್ದಾರ್ಥ','ಮೀನಿಂಗ್'],
 }
-
-
-# Error code settings
 error_codes  = {
     'internet-error': {
         'etks':1000,
@@ -127,23 +117,13 @@ error_codes  = {
         'tweak-power':1014,
     }
 }
-# Array of bad words
-
-
-# This function takes in a json file and array and converts that array into json file inside data directory
-# EX: write_jsonfile('commands.json',commands)
 def write_jsonfile(filename,filedata):
     with open('data/'+filename, 'w') as fp:
         json.dump(filedata, fp, indent=1)
-
-# Reading json file, This returns an array contained in json file
-# EX: read_jsonfile('commands.json')
 def read_jsonfile(filename):
     with open('data/'+filename,'r') as fp:
         res = json.load(fp)
     return res
-
-# Takes filenames and filedatas in list format and rewrites it note that length of both parameters should be equal
 def update_json_files(filenames, filedatas):
     if type(filenames) is list and type(filedatas) is list and len(filenames) == len(filedatas):
         for i_index,i_item in enumerate(filenames):
@@ -152,12 +132,8 @@ def update_json_files(filenames, filedatas):
                     write_jsonfile(i_item,j_item)
     else:
         print("Error occurred")
-
-# This adds indentation
 def jp(json_data,indent=1):
     return json.dumps(json_data, indent=indent, ensure_ascii=False)
-
-# Given an array/list of filenames it returns parsed json and prettified(indented) json
 def retrieve_json_files(filenames):
     prettified_json = []
     parsed_json = []
@@ -166,18 +142,10 @@ def retrieve_json_files(filenames):
         parsed_json.append(json.loads(jp(res,None)))
         prettified_json.append(jp(res,1))
     return [parsed_json,prettified_json]
-
-# Prints json
 def print_json(json_list,func=print):
     for json in json_list:
         func(json)
-
-
 if __name__ == '__main__':
     write_jsonfile('commands.json',commands)
-    # update_json_files('bw.json',b_w)
-    # print_json(read_jsonfile('bw.json'))
     print_json(retrieve_json_files(['commands.json'])[1])
     pass
-
-# pipwin

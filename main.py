@@ -465,20 +465,17 @@ class thread_with_exception(threading.Thread):
         self.func = func
         threading.Thread.__init__(self)
         self.name = name
-
     def run(self):
         try:
             self.func()
         except Exception as e:
             print(e)
-
     def get_id(self):
         if hasattr(self, '_thread_id'):
             return self._thread_id
         for id, thread in threading._active.items():
             if thread is self:
                 return id
-
     def raise_exception(self):
         thread_id = self.get_id()
         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,

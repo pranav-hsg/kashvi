@@ -38,13 +38,6 @@ from selenium import webdriver
 
 
 def error_message(title, body, choice):
-    """
-        The function to open info/warning/error window
-        Parameters:
-            title (str): The title of the error message.
-            body (str): Description of error message.
-            choice (int): Type of message ,1 ->info,2 -> warning,3 -> error
-    """
     # using switch like statement
     error_dict = {
         1: tk.messagebox.showinfo,
@@ -154,14 +147,6 @@ def run_async(callback_func):
 # Tests if any of the array of words is present in given line
 @handle_error
 def testifarrayinline(arr, line):
-    """
-        The function to return if keyword in array(arr) is contained in input String(line).
-        Parameters:
-            arr (list): The list which contains commands.
-            line (str): User given input string line.
-        Returns:
-            bool: Returns True or False.
-    """
     # It takes array of string and string line,
     # for every string in array put the string to elem
     for elem in arr:
@@ -184,14 +169,6 @@ def remove_special_charecters(string, regexp='[^A-Za-z0-9\s]+', replace_many_spa
 
 @handle_error
 def return_searched_word(arr, line):
-    """
-        The function to return if keyword in array(arr) is contained in input String(line).
-        Parameters:
-            arr (list): The list which contains commands.
-            line (str): User given input string line.
-        Returns:
-            str: Returns None or searched keyword element in command array.
-    """
     # It takes array of string and string line,
     # for every string in array put the string to elem
     for elem in arr:
@@ -205,9 +182,6 @@ def return_searched_word(arr, line):
 
 @handle_error
 def send_mail():
-    """
-        The function to send email which accepts no input.
-    """
     from_mail = sender_email_info['user_name']
     frommail_password = sender_email_info['user_password']
     display('Speak the message you want to send when i am listening', 4)
@@ -235,14 +209,6 @@ def send_mail():
 # This function accepts a command from the user in speech form
 @handle_error
 def takeuserinput(lang='kn', msg='Listening...'):
-    """
-        The function which accepts input in the form of audio from the user.
-        Parameters:
-            lang (str): Name of the input language to accept,ex : 'en' for English.
-            msg (str): To display to user while accepting command like 'Listening...'.
-        Returns:
-            str: Returns input in the form of string which is accepted from user.
-    """
     # It takes microphone input from the user and returns string output
     with sr.Microphone() as source:
         r = sr.Recognizer()
@@ -276,23 +242,12 @@ def takeuserinput(lang='kn', msg='Listening...'):
 # Open website function
 @handle_error
 def open_website(url, new_tab=0):
-    """
-        The function which opens a url in default browser.
-        Parameters:
-            url (str): Url of the website to open.
-            new_tab (int): If one wants to open in new tab or not.
-    """
     webbrowser.open_new(url)
 
 
 # Playing music function
 @handle_error
 def say(music):
-    """
-        The function which plays music synchronously.
-        Parameters:
-            music (str): path to music file and its name at end of path.
-    """
     # Use playsound and not play using os module because playsound plays syncronously while
     # play using os module plays async leading to misbehaving of current app
     playsound(music)
@@ -301,14 +256,6 @@ def say(music):
 # English to Kannada or vice versa text function
 @handle_error
 def text_translator(text,dest='kn'):
-    """
-        The function translates text.
-        Parameters:
-            text (str): Text to be converted.
-            dest (str): Destination language to be converted.
-        Returns:
-            str : Translated text in the form of string.
-    """
     # if Translator().translate('ಹೌದು', dest='en').text in 'yes Yes':
     try:
         translator = Translator()
@@ -326,12 +273,6 @@ def text_translator(text,dest='kn'):
 # English text to kannada speech function
 @handle_error
 def etks(text, id=1):
-    """
-        The function converts english language text to kannada language speech.
-        Parameters:
-            text (str): Text to be converted to speech.
-            id (int): To set music id (Not important).
-    """
     dir = f"music//eng{id}.mp3"
     kan_txt = text_translator(text, 'kn')
     # gui.heading_display(kan_txt)
@@ -349,13 +290,6 @@ def etks(text, id=1):
 # News speaking function
 @handle_error
 def newsretriever(number=10, api_key=api_keys['news_api'], country='in', category='&category=business', q='&q=tesla'):
-    """
-        The function which speaks news.
-        Parameters:
-            number (int): Number of news to tell.
-            country (str): Country of which to tell news.
-            :param api_key: Api key
-    """
     x = []
     counter = 0
     # Number of news
@@ -386,11 +320,6 @@ def newsretriever(number=10, api_key=api_keys['news_api'], country='in', categor
 # Wish according to time function
 @handle_error
 def wish_time(hour=datetime.datetime.now().strftime("%H")):
-    """
-        The function to wish time,like 'good morning'.
-        Parameters:
-            hour (Any): Optional time input to speak.
-    """
     # convert string time to int type
     hour = int(hour)
     # these are self explanatory
@@ -414,9 +343,6 @@ def bwc(cmd):
 # Current time enquiry function
 @handle_error
 def curtime():
-    """
-        The function speaks current time (hour and minutes)
-    """
     # ex:returns as 13 : 07
     return datetime.datetime.now().strftime("%H : %M ")
 
@@ -424,22 +350,12 @@ def curtime():
 # Give gap function
 @handle_error
 def ggap(tim=0.5):
-    """
-        The function which is shorthand for time.sleep function (Blocks code for user specified time).
-        Parameters:
-            tim (float): Optional time in seconds to stop.
-    """
     time.sleep(tim)
 
 
 # fuction to create a directory,this function creates all dirs in dir_array
 @handle_error
 def create_dir(dir_array):
-    """
-        The function which creates directories in given array.
-        Parameters:
-            dir_array (list): An array of directory names to create.
-    """
     # pick particular directory from directory array
     for dir in dir_array:
         # If directory path does not exists then only proceed,because there is no point in creating same dir
@@ -455,11 +371,6 @@ def create_dir(dir_array):
 # funtion to clear all files inside a directory,this function clears entire dir inside dir_array
 @handle_error
 def clear_dir(dir_array):
-    """
-        The function which clears all files and directories inside a given directory array.
-        Parameters:
-            dir_array (list): An array of directory names to clear.
-    """
     # pick particular directory from directory array
     for dir in dir_array:
         # If directory path exists then only proceed
@@ -487,9 +398,6 @@ def init():
 # Send whats app message function
 @handle_error
 def swm():
-    """
-        The function sends whatsapp message.
-    """
     etks("Speak the message you want to send when I start to listen")
     # Calculate current time hour,min,sec
     ggap()
@@ -515,14 +423,6 @@ def swm():
 # Notification function to show notification to system
 # @handle_error
 def notify_system(title, message, app_icon, timeout=4):
-    """
-        The function which pops system notification.
-        Parameters:
-            title (str): Title to display in notification.
-            message (str): Message to display notification.
-            app_icon (str): Path of icon to display in notification.
-            timeout (int): Number of seconds until notification vanishes.
-    """
     try:
         notification.notify(
             title=title,
@@ -537,15 +437,6 @@ def notify_system(title, message, app_icon, timeout=4):
 
 @handle_error
 def utc_to_time(secsTillEpoch):
-    """
-        The function converts seconds till Epoch to hours and minutes and date,ex 1618965725 -> Wed Apr 21 06:12:05 2021.
-        Epoch (or Unix time or POSIX time or Unix timestamp) is the number of seconds that have elapsed since January 1,
-        1970 (midnight UTC/GMT), not counting leap seconds.
-        Parameters:
-            secsTillEpoch (int): Seconds till Epoch.
-        Returns:
-            datetime: Returns parsed date and time in the format of '%a %b %d %H:%M:%S %Y'.
-    """
     # ctime converts epoch to string ex:1618965725 -> Wed Apr 21 06:12:05 2021
     local_time = time.ctime(secsTillEpoch)
     # strptime function parses from string
@@ -557,12 +448,6 @@ def utc_to_time(secsTillEpoch):
 @run_async
 @handle_error
 def weather_report(latitude=13.66675, longitude=75.30914, api_key=api_keys['weather_api']):
-    """
-        The function speaks weather report with help of etks function.
-        Parameters:
-            latitude (int): Latitude of the area of which you want to fetch weather.
-            longitude (int): Longitude of the area of which you want to fetch weather.
-    """
     url = f"http://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid" \
           f"={api_key}&lang=en "
     json_object = {}
@@ -599,12 +484,6 @@ def weather_report(latitude=13.66675, longitude=75.30914, api_key=api_keys['weat
 @run_async
 @handle_error
 def wikipedia_search(query, sentences=2):
-    """
-        The function speaks data from wikipedia with the help of etks.
-        Parameters:
-            query (str): Search string to query.
-            sentences (int): Number of sentences to fetch.
-    """
     print(query)
     result = wikipedia.summary(query, sentences=sentences)
     print("result:", result)
@@ -621,12 +500,6 @@ def ret_rand_cmd():
 
 @handle_error
 def tweak_power(command, action):
-    """
-        The function executes given command( such as tweaking power).
-        Parameters:
-            command (str): Command to take action.
-            action (str): Action to make such as sleep/restart/power-off.
-    """
     etks(f"Are you sure want to {action} computer")
     # Ask for user confirmation
     if testifarrayinline(commands['positive-statements'], takeuserinput('kn')):
@@ -639,11 +512,6 @@ def tweak_power(command, action):
 
 @handle_error
 def google_search(user_input="who is Prime Minister of India"):
-    """
-        The function speaks data from google with the help of etks.
-        Parameters:
-            user_input (str): Query to search in google.
-    """
     # if user wanted to search Meaning of the word
     if testifarrayinline(commands['meaning'], user_input):
         # replace words in commands['meaning'] array with ''
@@ -682,11 +550,6 @@ def google_search(user_input="who is Prime Minister of India"):
 # Get youtube link ,note that you want api key for youtube.
 @handle_error
 def get_youtube_link(query):
-    """
-        The function opens particular video in browser according to user query with the help of youtube api.
-        Parameters:
-            query (str): Search string to query.
-    """
     youtube = build('youtube', 'v3', developerKey=api_keys['youtube_api'])
     # search you tube for top results
     req = youtube.search().list(q=query, part='snippet', type='video')
@@ -700,11 +563,6 @@ def get_youtube_link(query):
 # Opens google maps using selenium tool
 @handle_error
 def open_google_maps(url):
-    """
-        The function opens google map according to user query.
-        Parameters:
-            url (str): url to fetch.
-    """
     # set driver as global(It is necessary because if not set then browser closes itself after sometime)
     global driver
     # Here Chrome  will be used
@@ -726,13 +584,6 @@ def open_google_maps(url):
 
 @handle_error
 def recursive_input(lang='kn'):
-    """
-        The function takes recursive input till user speaks.
-        Parameters:
-            lang (str): Name of the input language .
-        Returns:
-            str : returns query input.
-    """
     # Taking user input in kannada language
     # User user_input is in the format of  kannada string
     user_input = takeuserinput()
@@ -750,9 +601,6 @@ count = 0
 # Main function
 @handle_error
 def main(commands=commands):
-    """
-        This is the main function.
-    """
     global count
     if count == 0:
         pass
@@ -863,9 +711,6 @@ def main(commands=commands):
 
 # Thread class
 class thread_with_exception(threading.Thread):
-    """
-       This is a class to stop thread.
-   """
     def __init__(self, func, name="Thread"):
         self.func = func
         threading.Thread.__init__(self)
@@ -898,9 +743,6 @@ class thread_with_exception(threading.Thread):
 # When onstop method is pressed
 @handle_error
 def on_start():
-    """
-        The function starts thread when start button is clicked.
-    """
     # Clean music directory if app is not stopped properly last time
     clear_dir(['music'])
     # Grab global variables instead of function variables
@@ -943,9 +785,6 @@ def on_start():
 # When stop button is pressed
 @handle_error
 def on_stop():
-    """
-        The function stops thread when stop button is clicked.
-    """
     # Grab global variables instead of function variables
     # t1 is thread 1 check if it is alive and only stop thread if thread is alive
     global t1, is_alive
@@ -970,9 +809,6 @@ def on_stop():
 # When restart button is pressed
 @handle_error
 def on_restart():
-    """
-        The function restarts thread when restart button is clicked.
-    """
     on_stop()
     on_start()
     # Updated display
@@ -981,9 +817,6 @@ def on_restart():
 
 @handle_error
 def clear_display(*args):
-    """
-        The function is used to clear display.
-    """
     # *args accepts set of commands as ex: clear_display(1,2) if we print(args) -> (1,2)
     for elem in args:
         # for all elements inside args apply set method
@@ -1001,12 +834,6 @@ def on_clear():
 # Ex:display("Hello", 1) displays "Hello" on first display
 @handle_error
 def display(value, choice):
-    """
-        The function is used to show display.
-        Parameters:
-            value (str): Text to display.
-            choice (int): Screen number.
-    """
     # function switcher dictionary
     func_switcher = {
         1: notify_heading_text,
@@ -1038,12 +865,6 @@ def timeout(func, sec):
 # Tweak volume of pc
 @handle_error
 def tweak_volume(volume_points, volume_up=True):
-    """
-        The function is used to tweak volume.
-        Parameters :
-            volume_points (int): Volume points to tweak.
-            volume_up (bool): Volume up or down according to true or false.
-    """
     # Check if user wants to raise volume else down volume
     if volume_up:
         # Raise volume_points*2 volume , ex: if volume_points is 10 it raises 20 paints
@@ -1059,9 +880,6 @@ def tweak_volume(volume_points, volume_up=True):
 # If help function is called display and open default help.txt
 @handle_error
 def on_help():
-    """
-        The function is used to open help text.
-    """
     path = os.getcwd()
     # path.join is used to join path because even if we forget to put / it adds itself
     path_of_file = os.path.join(path, 'help/help.txt')
@@ -1069,9 +887,6 @@ def on_help():
 
 @handle_error
 def set_theme(theme_name,theme_id):
-    """
-        The function to change the theme.
-    """
     # Changing theme of app
     notification1.configure(bg=theme_name['app-bg'], fg=theme_name['n1-txt'])
     heading1.configure(bg=theme_name['app-disp-bg'], fg=theme_name['h1-txt'])
@@ -1114,9 +929,6 @@ def set_theme(theme_name,theme_id):
 
 @handle_error
 def on_submit():
-    """
-        The function is used to submit.
-    """
     global inputValue
     inputValue = textBox.get("1.0", "end-1c")
     print(inputValue)

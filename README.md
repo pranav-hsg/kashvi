@@ -67,3 +67,15 @@ To set up the necessary API keys, please follow these steps:
 1.  Go to [https://newsapi.org/](https://newsapi.org/) and generate an API key. Then, set up an environment variable with the name 'newsapi\_api\_key' and the value of your API key.
 2.   Visit [https://home.openweathermap.org/](https://home.openweathermap.org/) to generate a weather API key. Next, set up an environment variable with the name 'weather\_api\_key' and the value of your API key.
 3.  Go to [https://console.cloud.google.com/](https://console.cloud.google.com/) and create a new project. Then, generate a YouTube API key for your project. Finally, set up an environment variable with the name 'youtube\_api\_key' and the value of your YouTube API key."
+
+## Screenshots
+
+![image](https://user-images.githubusercontent.com/65011770/229810114-c4728b05-e7cf-4d3e-8e21-0eb38b80742b.png)
+
+![image](https://user-images.githubusercontent.com/65011770/229810330-c2f41ec6-17ff-4132-9e5a-5ddf91598207.png)
+
+![image](https://user-images.githubusercontent.com/65011770/229810522-330b8cb4-c1cd-45e4-8066-9544344bf9df.png)
+
+![image](https://user-images.githubusercontent.com/65011770/229810636-fedf9e5e-e16a-4c68-a3f6-082b2c2bfcef.png)
+
+

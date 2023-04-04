@@ -51,3 +51,19 @@ positive-statements: ಹೌದು, ಹಾ, ಎಸ್, ಓಕೆ,
 negative-statements: ನೋ, ಇಲ್ಲ, ಅಲ್ಲ,
 meaning:  ಶಬ್ದದ ಅರ್ಥ,ಶಬ್ದ ಅರ್ಥ,ಶಬ್ದಾರ್ಥ,ಮೀನಿಂಗ್,
 ```
+
+## UI Features
+
+The UI of the program is created with the Tkinter library, and it includes useful features such as error pop-ups, success notifications, and buttons for starting, stopping, and restarting processes. It also offers four different themes, including dark and light options, to customize the user experience. Additionally, it includes an inbuilt display area to provide relevant information and feedback to the user.
+
+## Setup
+
+Step 1: First you have to clone this repository  
+Step 2: Run `pip install -r requriements.txt`  
+Step 3: Setup API keys
+
+To set up the necessary API keys, please follow these steps:
+
+1.  Go to [https://newsapi.org/](https://newsapi.org/) and generate an API key. Then, set up an environment variable with the name 'newsapi\_api\_key' and the value of your API key.
+2.   Visit [https://home.openweathermap.org/](https://home.openweathermap.org/) to generate a weather API key. Next, set up an environment variable with the name 'weather\_api\_key' and the value of your API key.
+3.  Go to [https://console.cloud.google.com/](https://console.cloud.google.com/) and create a new project. Then, generate a YouTube API key for your project. Finally, set up an environment variable with the name 'youtube\_api\_key' and the value of your YouTube API key."

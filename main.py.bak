@@ -296,7 +296,6 @@ def say(music):
     """
     # Use playsound and not play using os module because playsound plays syncronously while
     # play using os module plays async leading to misbehaving of current app
-    print(music)
     playsound(music)
 
 
@@ -313,31 +312,27 @@ def text_translator(text,dest='kn'):
     """
     # if Translator().translate('ಹೌದು', dest='en').text in 'yes Yes':
     try: 
-        from googletrans import Translator
-        translator = Translator()
-        translation = translator.translate(text, dest=dest)
-        translate_text = translation.text
-        return translate_text
+        from translate import Translator
+        toLang = 'English' if dest == 'en' else 'Kannada'
+        translator= Translator(to_lang=toLang)
+        translation = translator.translate(text)
+        return translation
+        
     except:
         
         try:
             print("Trying to use Second translator as fallback")
-            from translate import Translator
-            toLang = 'English' if dest == 'en' else 'Kannada'
-            translator= Translator(to_lang=toLang)
-            print( "Text to translate",text);
-            translation = translator.translate(text)
-            return translation
-            
-            
-        except: 
-        
-            print("Trying to use thrid translator as fallback")
             from google_trans_new import google_translator
             translator = google_translator()
             translate_text = translator.translate(text, lang_tgt=dest)
             return translate_text
-           
+        except: 
+        
+            print("Trying to use thrid translator as fallback")
+            translator = Translator()
+            translation = translator.translate(text, dest=dest)
+            translate_text = translation.text
+            return translate_text
            
 
 
@@ -357,8 +352,6 @@ def etks(text, id=1):
     display(kan_txt, 4)
     print("Kannada text",kan_txt )
     obj = gTTS(text=kan_txt, slow=False, lang='kn')
-    if(os.path.exists(dir)):
-        os.remove(dir)
     obj.save(dir)
     say(dir)
     os.remove(dir)
@@ -502,7 +495,7 @@ def clear_dir(dir_array):
 def init():
     etks(wish_time())
     ggap()
-    etks("I am kashvi, please tell me how may i help", 1)
+    etks("I am kashvi,please tell me how may i help", 1)
 
 
 # Send whats app message function

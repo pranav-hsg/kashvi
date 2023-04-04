@@ -74,7 +74,7 @@ To set up the necessary API keys, please follow these steps:
 
 ![image](https://user-images.githubusercontent.com/65011770/229810330-c2f41ec6-17ff-4132-9e5a-5ddf91598207.png)
 
-![image](https://user-images.githubusercontent.com/65011770/229810522-330b8cb4-c1cd-45e4-8066-9544344bf9df.png)
+![image](https://user-images.githubusercontent.com/65011770/229811416-4381218f-85c5-4a57-b128-816a528860c1.png)
 
 ![image](https://user-images.githubusercontent.com/65011770/229810636-fedf9e5e-e16a-4c68-a3f6-082b2c2bfcef.png)
 
